@@ -19,5 +19,6 @@
 
 }
 .like:hover{
-    background-color: red;
+    cursor: pointer;
+    
 }

@@ -16,7 +16,7 @@ export default class HomePage extends Component {
             <div className="Container">
               <div className="row">
                 <div class="col-3">
-                One of three columns
+                
                 </div>
                 <div className="col-6">
                 
@@ -28,7 +28,7 @@ export default class HomePage extends Component {
 
                 </div>
                 <div className="col-3">
-                One of three columns
+                
                 </div>
             </div>
             </div>

@@ -3,10 +3,26 @@ import "./postView.css"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faHeart,faComment} from '@fortawesome/fontawesome-free-regular'
+import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons'
 
 import { s } from '@fortawesome/free-solid-svg-icons'
 
 export default class PostView extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {isLiked: false};
+    
+        // This binding is necessary to make `this` work in the callback
+        this.handleLike = this.handleLike.bind(this);
+      }
+
+    handleLike(){
+        this.setState(state => ({
+            isLiked: !state.isLiked
+          }));
+    }
+
     render() {
         return (
             <div className="Container postContainer">
@@ -30,7 +46,7 @@ export default class PostView extends Component {
                 </div>
                 <div className="row apple">
                     <div className="col-1">
-                    <FontAwesomeIcon className="like" icon={faHeart} size="2x" />
+                    <FontAwesomeIcon className="like" icon={this.state.isLiked? faHeartSolid : faHeart} size="2x"  onClick={(e)=> this.handleLike(e)}/>
                     </div>
                     <div className="col-1">
                     <FontAwesomeIcon icon={faComment} size="2x" />
