@@ -59,13 +59,13 @@ export default class CreateLogin extends Component {
                     </div>
                     <div className="form-group Container">
                         <div className="row">
-                            <button className="col-4" type="button">
+                            <button className="col-4 btn btn-primary" type="button">
                                 Forgot Password?
                             </button>
                             <div className="col-4" >
                                 
                             </div>
-                            <button className="col-4" type="button">
+                            <button className="col-4 btn btn-primary" type="button">
                                 LOGIN
                             </button>
                         </div>

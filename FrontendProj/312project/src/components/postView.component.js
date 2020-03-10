@@ -9,7 +9,7 @@ import { s } from '@fortawesome/free-solid-svg-icons'
 export default class PostView extends Component {
     render() {
         return (
-            <div className="Container">
+            <div className="Container postContainer">
                 <div className="row">
                 
                     <div className="col-2">
@@ -26,18 +26,25 @@ export default class PostView extends Component {
 
                 </div>
                 <div className="row">
+                    <hr size="2px"></hr>
+                </div>
+                <div className="row apple">
                     <div className="col-1">
-                    <FontAwesomeIcon icon={faHeart} size="2x" />
+                    <FontAwesomeIcon className="like" icon={faHeart} size="2x" />
                     </div>
                     <div className="col-1">
                     <FontAwesomeIcon icon={faComment} size="2x" />
                     </div>
                 </div>
                 <div className="row">
+                <div className="col">
                     8 Likes
+                    </div>
                 </div>
                 <div className="row">
+                <div className="col">
                     NissanUSA This is a comment
+                    </div>
                 </div>
 
             </div>

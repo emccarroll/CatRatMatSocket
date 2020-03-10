@@ -1,3 +1,23 @@
+.postContainer{
+    background-color: aqua;
+    border: 2px solid rgba(0, 255, 255, 0.733);
+  border-radius: 5px;
+  margin: 10px 0px;
+}
 .images{
     max-height: 500px;
+}
+.apple {
+    content: "";
+
+    width: 100%;
+
+    box-shadow: 0 -5px 5px -5px #333;
+    z-index: 100;
+  }
+.like{
+
+}
+.like:hover{
+    background-color: red;
 }
