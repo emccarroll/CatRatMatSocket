@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import "./loginPage.css"
 
 export default class CreateLogin extends Component {
 
