@@ -63,12 +63,20 @@ export default class CreateLogin extends Component {
                             <button className="col-4 btn btn-primary" type="button">
                                 Forgot Password?
                             </button>
-                            <div className="col-4" >
-                                
-                            </div>
+                            <div className="col"></div>
+                            
+                        
                             <button className="col-4 btn btn-primary" type="button">
-                                LOGIN
+                                Login
                             </button>
+                        </div>
+                        <br></br>
+                        <div className="row">
+                            <div className="col"></div>
+                            <button className="col-5 btn btn-primary" type="button">
+                                Create Account
+                            </button>
+                            <div className="col"></div>
                         </div>
                     </div>
 
