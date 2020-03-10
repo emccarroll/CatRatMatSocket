@@ -12,6 +12,7 @@ import { faHeart, faComment } from '@fortawesome/free-solid-svg-icons'
 
 
 import CreateTodo from "./components/create-todo.component";
+import CreateLogin from "./components/create-login.component";
 import EditTodo from "./components/edit-todo.component";
 import TodosList from "./components/todos-list.component";
 import HomePage from "./components/HomePage.component";
@@ -40,6 +41,9 @@ class App extends Component {
                 <li className="navbar-item">
                   <Link to="/create" className="nav-link">Create Todo</Link>
                 </li>
+                <li className="navbar-item">
+                  <Link to="/login" className="nav-link">Login</Link>
+                </li>
               </ul>
             </div>
           </nav>
@@ -48,6 +52,7 @@ class App extends Component {
           <Route path="/" exact component={HomePage} />
           <Route path="/edit/:id" component={EditTodo} />
           <Route path="/create" component={CreateTodo} />
+          <Route path="/login" component={CreateLogin} />
         </div>
       </Router>
     );
