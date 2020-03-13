@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
 import { faHeart, faComment } from '@fortawesome/free-solid-svg-icons'
- 
+
 
 
 
@@ -16,10 +16,11 @@ import CreateLogin from "./components/create-login.component";
 import EditTodo from "./components/edit-todo.component";
 import TodosList from "./components/todos-list.component";
 import HomePage from "./components/HomePage.component";
+import CreateAccount from "./components/create-account.component";
 
 import logo from "./logo.svg";
 
-library.add( faHeart, faComment)
+library.add(faHeart, faComment)
 class App extends Component {
   render() {
     return (
@@ -47,12 +48,13 @@ class App extends Component {
               </ul>
             </div>
           </nav>
-          <br/>
+          <br />
           {/*<Route path="/" exact component={TodosList} />*/}
           <Route path="/" exact component={HomePage} />
           <Route path="/edit/:id" component={EditTodo} />
           <Route path="/create" component={CreateTodo} />
           <Route path="/login" component={CreateLogin} />
+          <Route path="/createAccount" component={CreateAccount} />
         </div>
       </Router>
     );

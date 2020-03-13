@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import "./loginPage.css"
-import { Link } from 'react-router-dom';
 
-export default class CreateLogin extends Component {
+export default class CreateAccount extends Component {
 
     constructor(props) {
         super(props);
@@ -40,7 +39,7 @@ export default class CreateLogin extends Component {
     render() {
         return (
             <div style={{ marginTop: 10 }}>
-                <h3>Login:</h3>
+                <h3>Create account:</h3>
                 <form onSubmit={this.onSubmit}>
                     <div className="form-group">
                         <label>Username: </label>
@@ -56,29 +55,27 @@ export default class CreateLogin extends Component {
                             type="password"
                             className="form-control"
 
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Repeat Password: </label>
+                        <input
+                            type="password"
+                            className="form-control"
 
+                            required
                         />
                     </div>
                     <div className="form-group Container">
                         <div className="row">
                             <button className="col-4 btn btn-primary" type="button">
-                                Forgot Password?
+                                Create
                             </button>
-                            <div className="col"></div>
 
-
-                            <button className="col-4 btn btn-primary" type="button">
-                                Login
-                            </button>
                         </div>
                         <br></br>
-                        <div className="row">
-                            <div className="col"></div>
-                            <Link className="col-5 btn btn-primary" to="/createAccount">
-                                Create Account
-                            </Link>
-                            <div className="col"></div>
-                        </div>
+
                     </div>
 
                 </form>
