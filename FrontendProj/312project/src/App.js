@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
+import { Chat } from 'react-chat-popup';
 import "bootstrap/dist/css/bootstrap.min.css";
 import ReactDOM from 'react-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -55,6 +56,10 @@ class App extends Component {
           <Route path="/create" component={CreateTodo} />
           <Route path="/login" component={CreateLogin} />
           <Route path="/createAccount" component={CreateAccount} />
+          <h2>MERN-Stack Todo App</h2>
+          <Chat
+            handleNewUserMessage={this.handleNewUserMessage}
+          />
         </div>
       </Router>
     );
