@@ -20,9 +20,36 @@ export default class HomePage extends Component {
                 </div>
                 <div className="col-6">
                 
+                <div className="Container">
+
+                    <div className="row">
+                        <div className="col-12">
+                        <ul class="nav nav-pills nav-fill">
+                        <li class="nav-item nav-link active">
+                            All Content
+                        </li>
+                        <li class="nav-item nav-link">
+                            Following Feed
+                        </li>
+                        
+                        </ul>
+                        </div>
+                    
+                    </div>
+                    <div className="row">
+                        <div className="col-12">
+                        {items}
+                        </div>
+                    
+                    
+                    </div>
+
+
+
+                </div>
                 
                 
-                {items}
+                
 
 
 
