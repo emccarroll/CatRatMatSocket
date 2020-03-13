@@ -8,8 +8,3 @@ React allows us to add more functionality to our frontend.
 I dunno lol
 ### Licenses/term of service
 I dunno lol
-
-## Node
-
-
-## Docker?
