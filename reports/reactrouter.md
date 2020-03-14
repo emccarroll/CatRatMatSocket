@@ -6,6 +6,8 @@ React Router is an extension for React that allows us to route web traffic from 
 ## How does React Router accomplish what it does?
 
 When we are using react-router in App.js, we actually pull in reacter-router-dom. However, this is just a way for react-router to interface with the DOM, so we will be showing the code of react-router. 
+
+The router class will listen for location changes and if there are it will alter the component to show this change.
 <details>
 <summary>Router Code</summary>
 
