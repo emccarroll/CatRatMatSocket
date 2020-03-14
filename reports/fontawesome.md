@@ -140,6 +140,9 @@ const convertCurry = convert.bind(null, React.createElement)
 ## Licensing
 
 The following was copied from the [Font Awesome page on licensing][fa-license]:
+<details>
+<summary>Licensing Information</summary>
+
 * ### Icons
     In the Font Awesome Free download, the CC BY 4.0 license applies to all icons packaged as .svg and .js files types. 
 * ### Fonts
@@ -158,6 +161,8 @@ Use FA Free on your websites. |
 Embed FA Free in your mobile and desktop apps. |
 Use FA Free in desktop apps. |
 Embed FA Free in documents. (e.g. .pdf, .doc, etc.) |
+
+</details>
 
 This essentially means that as long as we don't use Font Awesome's name in the name of our project (see above), we can use Font Awesome Free for whatever purposes we need it for.
 
