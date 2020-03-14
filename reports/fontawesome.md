@@ -159,6 +159,8 @@ Embed FA Free in your mobile and desktop apps. |
 Use FA Free in desktop apps. |
 Embed FA Free in documents. (e.g. .pdf, .doc, etc.) |
 
+This essentially means that as long as we don't use Font Awesome's name in the name of our project (see above), we can use Font Awesome Free for whatever purposes we need it for.
+
 
 
 

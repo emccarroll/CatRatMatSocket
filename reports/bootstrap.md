@@ -58,7 +58,7 @@ Bootstrap's Grid generates its default 12 columns by making each column an equal
 https://github.com/twbs/bootstrap/blob/master/scss/mixins/_grid.scss
 ```
 
-Source Code for Form Styling:
+### Source Code for Form Styling:
 ```css
 .form-file {
   position: relative;
@@ -141,7 +141,7 @@ Source Code for Form Styling:
 https://github.com/twbs/bootstrap/blob/master/scss/forms/_form-file.scss
 ```
 
-## Navbar CSS ##
+### Navbar CSS ##
 
 ```css
 https://github.com/twbs/bootstrap/blob/master/scss/_navbar.scss
@@ -444,4 +444,16 @@ https://github.com/twbs/bootstrap/blob/master/scss/_navbar.scss
   }
 }
 ```
+
+## Licensing
+Bootstrap is released under the MIT license. Bootstrap's [webpage on the licensing][bootstrap-license] essentially says that as long as we
+
+>Keep the license and copyright notice included in Bootstrap’s CSS and JavaScript files when you use them in your works
+
+we can
+> Freely download and use Bootstrap, in whole or in part, for personal, private, company internal, or commercial purposes
+
+
+
+[bootstrap-license]: https://getbootstrap.com/docs/4.0/about/license/
 
