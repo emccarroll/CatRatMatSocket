@@ -7,19 +7,23 @@ Node.js serves as an HTTP server for our React frontend pages. The conventional 
 
 ## How does this technology accomplish what it does?
 
-At the TCP socket server level Node.js 
+As illustrated here, Node.js uses C++ to parse HTTP. What I've tried to illustrate here is that the C++ code will take in some HTTP data, decide whether it is a request or a response and then will set an async wrapper so that it can send the appropriate response. 
 
-```javascript
-        // This is a binding to llhttp (https://github.com/nodejs/llhttp)
-        // The goal is to decouple sockets from parsing for more javascript-level
-        // agility. A Buffer is read from a socket and passed to parser.execute().
-        // The parser then issues callbacks with slices of the data
-        //     parser.onMessageBegin
-        //     parser.onPath
-        //     parser.onBody
-        //     ...
-        // No copying is performed when slicing the buffer, only small reference
-        // allocations.
+```cpp
+    CHECK(type == HTTP_REQUEST || type == HTTP_RESPONSE);
+    Parser* parser;
+    ASSIGN_OR_RETURN_UNWRAP(&parser, args.Holder());
+    // Should always be called from the same context.
+    CHECK_EQ(env, parser->env());
+
+    AsyncWrap::ProviderType provider =
+        (type == HTTP_REQUEST ?
+            AsyncWrap::PROVIDER_HTTPINCOMINGMESSAGE
+            : AsyncWrap::PROVIDER_HTTPCLIENTREQUEST);
+
+    parser->set_provider_type(provider);
+    parser->AsyncReset(args[1].As<Object>());
+    parser->Init(type, max_http_header_size, lenient);
 ```
 [Link to code][node-parser]
 ## Licensing
