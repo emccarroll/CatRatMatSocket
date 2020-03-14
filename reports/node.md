@@ -3,7 +3,7 @@
 
 Node.js is an open source, cross platform Javascript runtime environment that allows us to execute Javascript code outside of the browser. With node.js you can build fully fledged web applications using Javascript. By having Javascript run on the server, you can create dynamic web page content before it is sent to the client.
 
-Node.js serves as an HTTP server for our React Front End Pages. The conventional way to create a React app is to run it using Node.js.
+Node.js serves as an HTTP server for our React frontend pages. The conventional way to create a React app is to run it using Node.js.
 
 ## How does this technology accomplish what it does?
 
