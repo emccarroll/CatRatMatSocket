@@ -58,7 +58,7 @@ Bootstrap's Grid generates its default 12 columns by making each column an equal
 https://github.com/twbs/bootstrap/blob/master/scss/mixins/_grid.scss
 ```
 
-Source Code for Form Styling:
+## Source Code for Form Styling:
 ```css
 .form-file {
   position: relative;
