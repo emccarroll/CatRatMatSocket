@@ -25,6 +25,22 @@ As illustrated here, Node.js uses C++ to parse HTTP. What I've tried to illustra
     parser->AsyncReset(args[1].As<Object>());
     parser->Init(type, max_http_header_size, lenient);
 ```
+
+
+A high level description of the HTTP level code can be found here:
+
+```cpp
+// This is a binding to llhttp (https://github.com/nodejs/llhttp)
+// The goal is to decouple sockets from parsing for more javascript-level
+// agility. A Buffer is read from a socket and passed to parser.execute().
+// The parser then issues callbacks with slices of the data
+//     parser.onMessageBegin
+//     parser.onPath
+//     parser.onBody
+//     ...
+// No copying is performed when slicing the buffer, only small reference
+// allocations.
+```
 [Link to code][node-parser]
 ## Licensing
 >Copyright Node.js contributors. All rights reserved.
