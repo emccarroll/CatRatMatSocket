@@ -1,9 +1,22 @@
 import React, { Component } from 'react';
 import PostView from "./postView.component";
+import "./homePage.css";
 
 export default class HomePage extends Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {isAllContent: false};
+    
+        // This binding is necessary to make `this` work in the callback
+        this.FeedSwitch = this.FeedSwitch.bind(this);
+      }
 
+    FeedSwitch(){
+        this.setState(state => ({
+            isAllContent: !state.isAllContent
+          }));
+    }
 
 
     render() {
@@ -15,7 +28,7 @@ export default class HomePage extends Component {
         return (
             <div className="Container">
               <div className="row">
-                <div class="col-3">
+                <div className="col-3">
                 
                 </div>
                 <div className="col-6">
@@ -24,11 +37,11 @@ export default class HomePage extends Component {
 
                     <div className="row">
                         <div className="col-12">
-                        <ul class="nav nav-pills nav-fill">
-                        <li class="nav-item nav-link active">
+                        <ul className="nav nav-pills nav-fill">
+                        <li className={this.state.isAllContent ? 'nav-item nav-link active tab' : 'nav-item nav-link tab'} onClick={(e)=> this.FeedSwitch(e)}>
                             All Content
                         </li>
-                        <li class="nav-item nav-link">
+                        <li className={this.state.isAllContent ? 'nav-item nav-link tab' : 'nav-item nav-link active tab'} onClick={(e)=> this.FeedSwitch(e)}>
                             Following Feed
                         </li>
                         
