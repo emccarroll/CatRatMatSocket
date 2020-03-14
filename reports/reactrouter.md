@@ -5,12 +5,13 @@ React Router is an extension for React that allows us to route web traffic from 
 
 ## How does React Router accomplish what it does?
 
-When we are using react-router in App.js, we actually pull in reacter-router-dom. However, this is just a way for react-router to interface with the DOM, so we will be showing the code of react-router. 
+When we are using react-router in App.js, we actually pull in [reacter-router-dom][rrDom]. However, this is just a way for [react-router][rr] to interface with the DOM, so we will be showing the code of react-router. 
+
+
+<details>
+<summary>Router</summary>
 
 The router class will listen for location changes and if there are it will alter the component to show this change.
-<details>
-<summary>Router Code</summary>
-
 ```javascript
 var Router =
 /*#__PURE__*/
@@ -61,8 +62,9 @@ function (_React$Component) {
 
 
 <details>
-<summary>Router Source Code</summary>
+<summary>Route</summary>
 
+The route component takes a route string and a component as props. The route var checks to make sure that the route tag is being used inside a router tag.
 ```javascript
 var Route =
 /*#__PURE__*/
@@ -119,3 +121,6 @@ function (_React$Component) {
 React router is [released under the MIT license][rrouter-license]. This means that we can freely modify and distribute it as long as we include the license in a portion of our software.
 
 [rrouter-license]: https://github.com/ReactTraining/react-router/blob/master/LICENSE
+
+[rrDom]: https://github.com/ReactTraining/react-router/tree/master/packages/react-router-dom
+[rr]: https://github.com/ReactTraining/react-router/tree/master/packages/react-router
