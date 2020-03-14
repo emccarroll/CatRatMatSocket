@@ -44,7 +44,7 @@ export default class PostView extends Component {
                 <div className="row">
                     <hr size="2px"></hr>
                 </div>
-                <div className="row apple">
+                <div className="row bottomHalf">
                     <div className="col-1">
                     <FontAwesomeIcon className="like" icon={this.state.isLiked? faHeartSolid : faHeart} size="2x"  onClick={(e)=> this.handleLike(e)}/>
                     </div>
