@@ -9,7 +9,7 @@ When we are using react-router in App.js, we actually pull in reacter-router-dom
 
 The router class will listen for location changes and if there are it will alter the component to show this change.
 <details>
-<summary>Router Code</summary>
+<summary>Router</summary>
 
 ```javascript
 var Router =
@@ -61,7 +61,7 @@ function (_React$Component) {
 
 
 <details>
-<summary>Router Source Code</summary>
+<summary>Route</summary>
 
 ```javascript
 var Route =
