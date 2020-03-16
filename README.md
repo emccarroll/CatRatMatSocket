@@ -4,7 +4,7 @@ This is a CSE312 Social Media Site Group Project. THis social media site will be
 **ContemporaryArtwork = Jacob Santoni**
 
 
-#Note Our docker file is located in the Frontend/312project folder. Also you can start the docker container using the command 
+# Note Our docker file is located in the Frontend/312project folder. Also you can start the docker container using the command
 ```
 docker container run --publish 8000:3000 --detach <image_name>
 ```
