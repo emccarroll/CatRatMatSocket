@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const PORT = 3000;
-const mongoIP = "mongo";
+const mongoIP = "mongodb";
 const mongoPort = 27017;
 const postRoutes = express.Router();
 
@@ -14,7 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 
-mongoose.connect('mongodb://'+mongoIP+':'+mongoPort+'/catratmat', { useNewUrlParser: true });
+mongoose.connect('mongodb://'+"mongodb"+':'+mongoPort+'/catratmat', { useNewUrlParser: true });
 const connection = mongoose.connection;
 
 connection.once('open', function() {
