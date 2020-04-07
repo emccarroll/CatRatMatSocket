@@ -14,7 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 
-mongoose.connect('mongodb://'+"mongodb"+':'+mongoPort+'/catratmat', { useNewUrlParser: true });
+mongoose.connect('mongodb://mongodb:27017/catratmat');
 const connection = mongoose.connection;
 
 connection.once('open', function() {
