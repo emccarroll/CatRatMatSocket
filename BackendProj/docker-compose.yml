@@ -7,7 +7,9 @@ services:
     depends_on: 
         - mongodb
     links: 
-        - mongodb
+        - "mongodb"
+    networks: 
+        - mynet
   mongodb:
     image: "mongo:latest"
     command: mongod --bind_ip_all
@@ -15,3 +17,7 @@ services:
         - "27017:27017"
     environment: 
         MONGO_INITDB_DATABASE: "catratmat"
+    networks: 
+        - mynet
+networks:
+    mynet:
