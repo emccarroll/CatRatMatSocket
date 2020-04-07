@@ -1,26 +1,21 @@
 version: '3.7'
 services:
   backend-serv:
-    build: .
-    restart: always
+    container_name: backend-serv
+    build: ./
     ports:
       - "3000:3000"
     depends_on: 
         - mongodb
     links: 
         - "mongodb"
-    networks: 
-        - mynet
+
   mongodb:
+    container_name: mongo
     image: "mongo:latest"
     command: mongod --bind_ip_all
     ports:
         - "27017:27017"
     environment: 
         MONGO_INITDB_DATABASE: "catratmat"
-    networks: 
-        - mynet
 
-networks:
-    mynet:
-        driver: bridge
