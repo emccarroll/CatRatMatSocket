@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 import { Chat } from 'react-chat-popup';
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
 import ReactDOM from 'react-dom'
 
 import CreatePost from "./components/create-post.component";
@@ -11,6 +12,7 @@ import CreateLogin from "./components/create-login.component";
 import HomePage from "./components/HomePage.component";
 import ProfilePage from "./components/ProfilePage.component";
 import CreateAccount from "./components/create-account.component";
+import PostPage from "./components/postPage.component";
 
 import logo from "./logo.svg";
 
@@ -18,7 +20,7 @@ class App extends Component {
   render() {
     return (
       <Router>
-        <div className="container">
+        <div className="container MainContainerBG">
           <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#" target="_blank">
               <img src={logo} width="30" height="30" alt="Our Logo" />
@@ -48,6 +50,7 @@ class App extends Component {
           <Route path="/create" component={CreatePost} />
           <Route path="/login" component={CreateLogin} />
           <Route path="/createAccount" component={CreateAccount} />
+          <Route path="/post/:postId" component={PostPage} />
           
           <Chat
             handleNewUserMessage={this.handleNewUserMessage}

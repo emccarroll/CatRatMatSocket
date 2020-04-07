@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import "./postView.css"
+import "./postPage.css"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faHeart,faComment} from '@fortawesome/fontawesome-free-regular'
@@ -11,7 +12,7 @@ export default class PostView extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {postId:"12",isLiked: false, isCommented: false};
+        this.state = {isLiked: false, isCommented: false};
     
         // This binding is necessary to make `this` work in the callback
         this.handleLike = this.handleLike.bind(this);
@@ -19,25 +20,23 @@ export default class PostView extends Component {
       }
 
     handleLike(){
-
-
         this.setState(state => ({
             isLiked: !state.isLiked
           }));
     }
     handleComment(){
-        
-        this.props.OnGoToCommentsButtonClicked(this.state.postId);
         this.setState(state => ({
             isCommented: !state.isCommented
           }));
-        
     }
 
 
     render() {
         return (
-            <div className="Container postContainer">
+            <div className="container postContainer">
+                <div className="row">
+                <div  className="col-8">
+                <div className="container">
                 <div className="row">
                 
                     <div className="col-2">
@@ -74,7 +73,63 @@ export default class PostView extends Component {
                     NissanUSA This is a comment
                     </div>
                 </div>
+                </div>
+                </div>
+                <div  className="col-4">
+                <div className="container fill  CommentSection border">
+                    <div className="row TopCommentSection border-bottom" >
+                            <div className="col d-flex justify-content-center align-items-center">
+                            
+                            <h2>Comment Section</h2>
 
+                            </div>
+                    </div>
+                    <div className="row CommentFeed overflow-auto">
+                        <div className="col noPad ">
+                            
+                            <ul className="list-group list-group-flush">
+                                <li className="list-group-item">Cras justo odio</li>
+                                <li className="list-group-item">Dapibus ac facilisis in</li>
+                                <li className="list-group-item">Morbi leo risus</li>
+                                <li className="list-group-item">Porta ac consectetur ac</li>
+                                <li className="list-group-item">Vestibulum at eros</li>
+                                <li className="list-group-item">Morbi leo risus</li>
+                                <li className="list-group-item">Porta ac consectetur ac</li>
+                                <li className="list-group-item">Porta ac consectetur ac</li>
+                                <li className="list-group-item">Porta ac consectetur ac</li>
+                                <li className="list-group-item">Porta ac consectetur ac</li>
+                                <li className="list-group-item">Porta ac consectetur ac</li>
+                                <li className="list-group-item">Porta ac consectetur ac</li>
+                                <li className="list-group-item">Morbi leo risus</li>
+                                <li className="list-group-item">Porta ac consectetur ac</li>
+                                <li className="list-group-item">Vestibulum at eros</li>
+                               
+                            </ul>
+
+
+
+
+                        </div>
+                    </div>
+                    <div className="row BottomCommentSection border-top" >
+                        <div className="col d-flex justify-content-center align-items-center">
+                            
+                            {/*<div className="d-flex justify-content-center align-items-center align-self-center">*/}
+                                <div className="input-group mb-3 noPad noMar">
+                                    <input type="text" class="form-control" aria-label="Text input with segmented dropdown button for commenting" placeholder="Comment Here"  aria-describedby="button-addon2"/>
+                                    
+                                    <div className="input-group-append">
+                                        <button className="btn btn-outline-primary" type="button" id="button-addon2">Post</button>
+                                    </div>
+                                </div>
+                                {/* </div>*/}
+
+                            </div>
+                        
+                    </div>
+                </div>
+                </div>
+                </div>
             </div>
         )
     }

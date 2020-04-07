@@ -4,10 +4,11 @@
   border-radius: 5px;
   margin: 10px 0px;
   padding: 0px;
+
 }
 .images{
   padding-top: 2px;
-    max-height: 500px;
+    max-height: 400px;
 }
 .bottomHalf {
     content: "";
@@ -17,9 +18,7 @@
     box-shadow: 0 -5px 5px -5px #333;
     z-index: 100;
   }
-.like{
 
-}
 .like:hover{
     cursor: pointer;
     
