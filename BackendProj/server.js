@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const PORT = 3000;
-const mongoIP = "mongodb";
+const mongoIP = "mongo";
 const mongoPort = 27017;
 const postRoutes = express.Router();
 

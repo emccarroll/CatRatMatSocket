@@ -6,9 +6,9 @@ services:
     ports:
       - "3000:3000"
     depends_on: 
-        - mongodb
+        - mongo
     links: 
-        - "mongodb"
+        - "mongo"
 
   mongodb:
     container_name: mongo
