@@ -13,7 +13,7 @@ let Post = require('./post.model');
 app.use(cors());
 app.use(bodyParser.json());
 
-
+console.log("test");
 mongoose.connect('mongodb://mongodb:27017/catratmat');
 const connection = mongoose.connection;
 
