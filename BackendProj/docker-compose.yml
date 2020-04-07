@@ -10,7 +10,7 @@ services:
     links: 
         - "mongo"
 
-  mongodb:
+  mongo:
     container_name: mongo
     image: "mongo:latest"
     command: mongod --bind_ip_all
