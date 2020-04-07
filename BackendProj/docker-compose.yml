@@ -12,6 +12,8 @@ services:
         - db
       depends_on: 
         - "db"
+      environment:
+        WAIT_HOSTS: mongo:27017
     db:
       container_name: mongo
       image: mongo
