@@ -1,21 +1,17 @@
-version: '3.7'
+version: '3'
 services:
-  backend-serv:
-    container_name: backend-serv
-    build: ./
-    ports:
-      - "3000:3000"
-    depends_on: 
+    app:
+      container_name: backend-serv
+      restart: always
+      build: ./
+      ports:
+        - "3000:3000"
+      volumes:
+        - .:/app
+      links:
         - mongo
-    links: 
-        - "mongo"
-
-  mongo:
-    container_name: mongo
-    image: "mongo:latest"
-    command: mongod --bind_ip_all
-    ports:
+    mongo:
+      container_name: mongo
+      image: mongo
+      ports:
         - "27017:27017"
-    environment: 
-        MONGO_INITDB_DATABASE: "catratmat"
-
