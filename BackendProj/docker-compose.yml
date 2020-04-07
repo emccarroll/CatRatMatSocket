@@ -9,10 +9,10 @@ services:
       volumes:
         - .:/app
       links:
-        - mongo
+        - "db"
       depends_on: 
-        - mongo
-    mongo:
+        - db
+    db:
       container_name: mongo
       image: mongo
       ports:
