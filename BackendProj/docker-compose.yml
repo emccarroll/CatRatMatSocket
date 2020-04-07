@@ -5,7 +5,7 @@ services:
     ports:
       - "3000:3000"
     depends_on: 
-        - "mongo"
+        - "mongodb"
   mongodb:
     image: "mongo:latest"
     command: mongod --bind_ip_all
