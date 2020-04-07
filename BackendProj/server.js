@@ -21,7 +21,7 @@ connection.once('open', function() {
     console.log("MongoDB database connection established successfully");
 }) 
 
-postRoutes.route('/posts').get(function(req, res) {
+postRoutes.route('/').get(function(req, res) {
     Post.find(function(err, posts) {
         if (err) {
             console.log(err);
@@ -86,7 +86,7 @@ postRoutes.route('/update/:id').post(function(req, res) {
     });
 });
 
-app.use('/', postRoutes);
+app.use('/posts', postRoutes);
 
 app.listen(PORT, function() {
     console.log("Server is running on Port: " + PORT);
