@@ -31,7 +31,10 @@ app.use('/users',cors(corsOptions), userRoutes);
 const saltRounds = 10;
 
 
-
+app.post('/image', function (req, res) {
+    console.log('receving data');
+    res.send('hello world')
+  })
 
 mongoose.connect('mongodb://db:27017/catratmat', { useNewUrlParser: true, useUnifiedTopology: true });
 const connection = mongoose.connection;
