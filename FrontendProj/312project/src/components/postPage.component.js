@@ -75,13 +75,17 @@ handleComment(){
     }
 
     OnPostCommentButtonClicked(){
+        const { postId } = this.props.match.params
         fetch(
-            "http://localhost:3000/posts/comments",
+            "http://localhost:3000/posts/comment/"+postId,
             {
               method: "post",
+              headers: {
+                'Content-Type': 'application/json'},
+                credentials: 'include',
               body: JSON.stringify({
-                "user":"DKLFJDKFJDKLFJDSKLFJDLSKJFLDKSJFLKDSJFLKDJ",
-                "text":"JKFJDKFJDKFJDKFDFKDF!"
+                
+                "text":"this.state."
               }),
             }
           )

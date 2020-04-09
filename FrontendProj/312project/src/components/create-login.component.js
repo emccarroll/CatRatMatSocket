@@ -39,9 +39,12 @@ export default class CreateLogin extends Component {
             "http://localhost:3000/users/login",
             {
               method: "post",
-              body: JSON.stringify("{username: \"jacobTesterman2\", password: \"securepassword?\"}")
-                
-	           
+              headers: {
+                'Content-Type': 'application/json'},
+              body:JSON.stringify({
+                "username": "jacobTesterman2",
+	            "password": "securepassword?"
+              }),
                 
               
             }
