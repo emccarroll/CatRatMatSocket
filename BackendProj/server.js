@@ -140,7 +140,7 @@ userRoutes.route('/login').post(function (req, res) {
                         });
                         res.cookie('authToken', token, { maxAge: 30 * 60000, path: "/" });
                         res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, path: "/"});
-                        res.header("Access-Control-Allow-Origin", "localhost:8000"); // update to match the domain you will make the request from
+                        res.header("Access-Control-Allow-Origin", "http://localhost:8000"); // update to match the domain you will make the request from
                         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
                         res.header("Access-Control-Allow-Credentials", true);
                         res.send('login correct (TODO make this functional)');
