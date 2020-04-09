@@ -38,6 +38,8 @@ export default class CreateLogin extends Component {
         fetch(
             "http://localhost:3000/users/login",
             {
+                //credentials: 'include',
+                
               method: "post",
               headers: {
                 'Content-Type': 'application/json'},

@@ -79,10 +79,12 @@ handleComment(){
         fetch(
             "http://localhost:3000/posts/comment/"+postId,
             {
+                //credentials: 'include',
+               // mode: "same-origin",
               method: "post",
               headers: {
                 'Content-Type': 'application/json'},
-                credentials: 'include',
+                
               body: JSON.stringify({
                 
                 "text":"this.state."

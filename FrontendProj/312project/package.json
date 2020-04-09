@@ -1,6 +1,7 @@
 {
   "name": "312project",
   "version": "0.1.0",
+  "proxy": "http://localhost:3000",
   "private": true,
   "dependencies": {
     "@fortawesome/fontawesome-free-regular": "^5.0.13",
