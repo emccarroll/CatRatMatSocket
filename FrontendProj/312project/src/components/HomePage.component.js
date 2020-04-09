@@ -9,7 +9,7 @@ export default class HomePage extends Component {
         super(props);
         this.state = {isAllContent: false,
             GoToCommentPage:false,
-            SelectedPost:"24",
+            SelectedPost:"5e8e7fc5a7bea00015f79fd3",
         
         
         
@@ -30,6 +30,7 @@ export default class HomePage extends Component {
         this.setState({GoToCommentPage:true,
         SelectedPost: postId});
     }
+
 
     render() {
 

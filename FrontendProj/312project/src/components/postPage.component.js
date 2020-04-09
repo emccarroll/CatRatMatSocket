@@ -5,6 +5,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faHeart,faComment} from '@fortawesome/fontawesome-free-regular'
 import { faHeart as faHeartSolid, faComment as faCommentSolid } from '@fortawesome/free-solid-svg-icons'
+import {Redirect, useParams} from 'react-router-dom';
+
 
 import { s } from '@fortawesome/free-solid-svg-icons'
 
@@ -12,11 +14,27 @@ export default class PostView extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {isLiked: false, isCommented: false};
+        
+        this.state = {isLiked: false, isCommented: false,
+        
+            postData: "",
+                comments: [],
+                goBackToHomePage:false
+                
+        };
     
         // This binding is necessary to make `this` work in the callback
         this.handleLike = this.handleLike.bind(this);
         this.handleComment = this.handleComment.bind(this);
+        this.OnPostCommentButtonClicked = this.OnPostCommentButtonClicked.bind(this);
+      }
+
+      componentDidMount() {
+        const { postId } = this.props.match.params
+        this.setState(state => ({
+            thepostId: postId
+          }));
+        this.getPost();
       }
 
     handleLike(){
@@ -24,9 +42,41 @@ export default class PostView extends Component {
             isLiked: !state.isLiked
           }));
     }
-    handleComment(){
+
+getPost(){
+    const { postId } = this.props.match.params
+    fetch(
+        "http://localhost:3000/posts/"+postId,
+        {
+          method: "get"
+          
+        }
+      )
+        .then((res) => res.json())
+        .then((result) => {
+            console.log(result);
+            this.setState(state => ({
+                postData: result,
+                comments: result.comments
+              }));
+            
+          
+        })
+        .catch((error) => {alert("Error getting PostData", error); alert(error)});
+
+
+
+
+}
+handleComment(){
+    this.setState(state => ({
+       goBackToHomePage:true
+      }));
+    }
+
+    OnPostCommentButtonClicked(){
         fetch(
-            "localhost:3000/posts/add",
+            "http://localhost:3000/posts/comments",
             {
               method: "post",
               body: JSON.stringify({
@@ -35,27 +85,31 @@ export default class PostView extends Component {
               }),
             }
           )
-            .then((res) => res.json())
+            .then((res) => res.text())
             .then((result) => {
-              if (result.users) {
-                this.setState({
-                  userdata: result.users[0],
-                  isLoaded: true,
-                });
-                this.ParseUserArtifacts();
-              }
+                console.log(result);
+                this.setState(state => ({
+                    isCommented: !state.isCommented
+                  }));
+                
+              
             })
-            .catch((error) => alert("Error getting ProfileData", error));
+            .catch((error) => {alert("Error getting ProfileData", error); alert(error)});
         }
 
 
-        this.setState(state => ({
-            isCommented: !state.isCommented
-          }));
-    }
+        
+    
 
 
     render() {
+        if(this.state.goBackToHomePage===true){
+            return(
+                <Redirect push
+                    to={"/"}
+                    />
+                )
+        }
         return (
             <div className="container postContainer">
                 <div className="row">
@@ -112,21 +166,10 @@ export default class PostView extends Component {
                         <div className="col noPad ">
                             
                             <ul className="list-group list-group-flush">
-                                <li className="list-group-item">Cras justo odio</li>
-                                <li className="list-group-item">Dapibus ac facilisis in</li>
-                                <li className="list-group-item">Morbi leo risus</li>
-                                <li className="list-group-item">Porta ac consectetur ac</li>
-                                <li className="list-group-item">Vestibulum at eros</li>
-                                <li className="list-group-item">Morbi leo risus</li>
-                                <li className="list-group-item">Porta ac consectetur ac</li>
-                                <li className="list-group-item">Porta ac consectetur ac</li>
-                                <li className="list-group-item">Porta ac consectetur ac</li>
-                                <li className="list-group-item">Porta ac consectetur ac</li>
-                                <li className="list-group-item">Porta ac consectetur ac</li>
-                                <li className="list-group-item">Porta ac consectetur ac</li>
-                                <li className="list-group-item">Morbi leo risus</li>
-                                <li className="list-group-item">Porta ac consectetur ac</li>
-                                <li className="list-group-item">Vestibulum at eros</li>
+                                    {this.state.comments.map(item => (
+                                     <li className="list-group-item" key={item}>{item.user}: {item.text}</li>
+                                    ))}
+                                
                                
                             </ul>
 
@@ -143,7 +186,7 @@ export default class PostView extends Component {
                                     <input type="text" class="form-control" aria-label="Text input with segmented dropdown button for commenting" placeholder="Comment Here"  aria-describedby="button-addon2"/>
                                     
                                     <div className="input-group-append">
-                                        <button className="btn btn-outline-primary" type="button" id="button-addon2">Post</button>
+                                        <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => this.OnPostCommentButtonClicked(e)}>Post</button>
                                     </div>
                                 </div>
                                 {/* </div>*/}
