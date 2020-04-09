@@ -138,8 +138,8 @@ userRoutes.route('/login').post(function (req, res) {
                             accounts[0].authSession = hash;
                             accounts[0].save();
                         });
-                        res.cookie('authToken', token, { maxAge: 30 * 6000, httpOnly: true });
-                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, httpOnly: true });
+                        res.cookie('authToken', token, { maxAge: 30 * 60000, httpOnly: true });
+                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, httpOnly: true, path: "/" });
                         res.send('login correct (TODO make this functional)');
                     });
 
