@@ -62,7 +62,10 @@ postRoutes.route('/add').post(function (req, res) {
             var account = data[0];
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
                 if (result){
-                    var post = new Post(req.body);
+                    var post = new Post();
+                    post.src = req.body.file;
+                    //TODO: implement image upload
+                    post.text = req.body.text;
                     post.user = account.user;
                     post.votes = 0;
                     // post.votes = req.body.user;
@@ -164,20 +167,34 @@ userRoutes.route('/').get(function (req, res) {
 });
 
 postRoutes.route('/comment/:id').post(function (req, res) {
-    Post.findById(req.params.id, function (err, post) {
-        if (!post)
-            res.status(404).send("data is not found");
-        else
-
-            post.comments.push(req.body);
-
-        post.save().then(post => {
-            res.json('Post updated!');
-        })
-            .catch(err => {
-                res.status(400).send("Update not possible");
+    Account.find({user: req.cookies['username']}, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result){
+                    Post.findById(req.params.id, function (err, post) {
+                        if (!post)
+                            res.status(404).send("data is not found");
+                        else
+                
+                            post.comments.push({user: account.user, text: req.body.text});
+                
+                        post.save().then(post => {
+                            res.json('Post updated!');
+                        })
+                            .catch(err => {
+                                res.status(400).send("Update not possible");
+                            });
+                    });
+                }else{
+                    res.send('invalid authentication token!');
+                }
             });
+        }
     });
+    
 });
 
 postRoutes.route('/update/:id').post(function (req, res) {
