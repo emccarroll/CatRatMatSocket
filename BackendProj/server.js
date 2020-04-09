@@ -3,24 +3,30 @@ const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+
+let Post = require('./post.model');
+let Account = require('./account.model');
+
 const PORT = 3000;
 const mongoIP = "mongo";
 const mongoPort = 27017;
 const postRoutes = express.Router();
 const userRoutes = express.Router();
 
-let Post = require('./post.model');
-let Account = require('./account.model');
-var bcrypt = require('bcrypt');
-const saltRounds = 10;
-
 app.use(cors());
 app.use(bodyParser.json());
+app.use(cookieParser('434secretfortestingpurposes12'));
 app.use('/posts', postRoutes);
 app.use('/users', userRoutes);
 
+const saltRounds = 10;
 
-mongoose.connect('mongodb://db:27017/catratmat');
+
+
+
+mongoose.connect('mongodb://db:27017/catratmat', { useNewUrlParser: true, useUnifiedTopology: true });
 const connection = mongoose.connection;
 
 connection.once('open', function () {
@@ -38,6 +44,7 @@ postRoutes.route('/').get(function (req, res) {
 });
 
 postRoutes.route('/:id').get(function (req, res) {
+
     let id = req.params.id;
     Post.findById(id, function (err, post) {
         res.json(post);
@@ -45,14 +52,31 @@ postRoutes.route('/:id').get(function (req, res) {
 });
 
 postRoutes.route('/add').post(function (req, res) {
-    let post = new Post(req.body);
-    post.save()
-        .then(post => {
-            res.status(200).json({ 'post': 'post added successfully' });
-        })
-        .catch(err => {
-            res.status(400).send('adding new post failed');
-        });
+    Account.find({user: req.cookies['username']}, function (err, data) {
+        console.log(req.cookies['authToken']);
+        console.log(data);
+        if (data.length == 0) {
+            console.log('test2');
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result){
+                    var post = new Post(req.body);
+                    post.user = account.user;
+                    post.votes = 0;
+                    // post.votes = req.body.user;
+                    // post.text = account.text;
+                    // post.src = account.src;
+                    post.save();
+                    res.send('post added!');
+                }else{
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+    
 });
 
 userRoutes.route('/createAccount').post(function (req, res) {
@@ -87,39 +111,49 @@ userRoutes.route('/createAccount').post(function (req, res) {
                 res.status(400).send('account by that name already exists!');
             }
         })
-    }
-    );
+    });
 });
 
 userRoutes.route('/login').post(function (req, res) {
-    
-        Account.find({ user: req.body.username }, function (err, accounts) {
-            if (err) {
-                console.log(err);
-                return;
-            }
 
-            if (accounts.length == 0) {
-                res.send('login incorrect');
-                console.log('no user');
-            }else{
+    Account.find({ user: req.body.username }, function (err, accounts) {
+        if (err) {
+            console.log(err);
+            return;
+        }
 
-                bcrypt.compare(req.body.password, accounts[0].passwordHash, function(err, result) {
-                    if (result){
+        if (accounts.length == 0) {
+            res.send('login incorrect');
+            console.log('no user');
+        } else {
+
+            bcrypt.compare(req.body.password, accounts[0].passwordHash, function (err, result) {
+                if (result) {
+                    require('crypto').randomBytes(48, function (err, buffer) {
+                        var token = buffer.toString('base64');
+                        bcrypt.hash(token, saltRounds, function (err, hash) {
+                            accounts[0].authSession = hash;
+                            accounts[0].save();
+                        });
+                        res.cookie('authToken', token, { maxAge: 30 * 6000, httpOnly: true });
+                        res.cookie('username', accounts[0].user, { maxAge: 30 * 6000, httpOnly: true });
                         res.send('login correct (TODO make this functional)');
-                    }else{
-                        res.send('login incorrect');
-                    }
-                });
-                
-            }
+                    });
 
-        })
-    
+                } else {
+                    res.send('login incorrect');
+                }
+            });
+
+        }
+
+    })
+
 
 });
 
 userRoutes.route('/').get(function (req, res) {
+
     Account.find(function (err, account) {
         if (err) {
             console.log(err);
