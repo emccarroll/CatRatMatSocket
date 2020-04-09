@@ -24,7 +24,12 @@ app.use('/users', userRoutes);
 const saltRounds = 10;
 
 
-
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "localhost:8000"); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Credentials", true);
+    next();
+  });
 
 mongoose.connect('mongodb://db:27017/catratmat', { useNewUrlParser: true, useUnifiedTopology: true });
 const connection = mongoose.connection;
