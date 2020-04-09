@@ -126,7 +126,7 @@ userRoutes.route('/login').post(function (req, res) {
         }
 
         if (accounts.length == 0) {
-            res.send('login incorrect');
+            res.send('could not find user:' + req.body.username);
             console.log('could not find user:' + req.body.username);
         } else {
 
