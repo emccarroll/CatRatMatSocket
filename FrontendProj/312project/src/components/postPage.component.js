@@ -25,6 +25,30 @@ export default class PostView extends Component {
           }));
     }
     handleComment(){
+        fetch(
+            "localhost:3000/posts/add",
+            {
+              method: "post",
+              body: JSON.stringify({
+                "user":"DKLFJDKFJDKLFJDSKLFJDLSKJFLDKSJFLKDSJFLKDJ",
+                "text":"JKFJDKFJDKFJDKFDFKDF!"
+              }),
+            }
+          )
+            .then((res) => res.json())
+            .then((result) => {
+              if (result.users) {
+                this.setState({
+                  userdata: result.users[0],
+                  isLoaded: true,
+                });
+                this.ParseUserArtifacts();
+              }
+            })
+            .catch((error) => alert("Error getting ProfileData", error));
+        }
+
+
         this.setState(state => ({
             isCommented: !state.isCommented
           }));
