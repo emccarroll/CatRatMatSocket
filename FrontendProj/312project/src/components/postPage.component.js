@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import "./postView.css"
+import "./postPage.css"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faHeart,faComment} from '@fortawesome/fontawesome-free-regular'
 import { faHeart as faHeartSolid, faComment as faCommentSolid } from '@fortawesome/free-solid-svg-icons'
+import {Redirect, useParams} from 'react-router-dom';
+
 
 import { s } from '@fortawesome/free-solid-svg-icons'
 
@@ -11,33 +14,113 @@ export default class PostView extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {postId:"5e8e7fc5a7bea00015f79fd3",isLiked: false, isCommented: false};
+        
+        this.state = {isLiked: false, isCommented: false,
+        
+            postData: "",
+                comments: [],
+                goBackToHomePage:false
+                
+        };
     
         // This binding is necessary to make `this` work in the callback
         this.handleLike = this.handleLike.bind(this);
         this.handleComment = this.handleComment.bind(this);
+        this.OnPostCommentButtonClicked = this.OnPostCommentButtonClicked.bind(this);
+      }
+
+      componentDidMount() {
+        const { postId } = this.props.match.params
+        this.setState(state => ({
+            thepostId: postId
+          }));
+        this.getPost();
       }
 
     handleLike(){
-
-
         this.setState(state => ({
             isLiked: !state.isLiked
           }));
     }
-    handleComment(){
-        
-        this.props.OnGoToCommentsButtonClicked(this.state.postId);
-        this.setState(state => ({
-            isCommented: !state.isCommented
-          }));
-        
+
+getPost(){
+    const { postId } = this.props.match.params
+    fetch(
+        "http://localhost:3000/posts/"+postId,
+        {
+          method: "get"
+          
+        }
+      )
+        .then((res) => res.json())
+        .then((result) => {
+            console.log(result);
+            this.setState(state => ({
+                postData: result,
+                comments: result.comments
+              }));
+            
+          
+        })
+        .catch((error) => {alert("Error getting PostData", error); alert(error)});
+
+
+
+
+}
+handleComment(){
+    this.setState(state => ({
+       goBackToHomePage:true
+      }));
     }
+
+    OnPostCommentButtonClicked(){
+        const { postId } = this.props.match.params
+        fetch(
+            "http://localhost:3000/posts/comment/"+postId,
+            {
+                //credentials: 'include',
+               // mode: "same-origin",
+              method: "post",
+              headers: {
+                'Content-Type': 'application/json'},
+                
+              body: JSON.stringify({
+                
+                "text":"this.state."
+              }),
+            }
+          )
+            .then((res) => res.text())
+            .then((result) => {
+                console.log(result);
+                this.setState(state => ({
+                    isCommented: !state.isCommented
+                  }));
+                
+              
+            })
+            .catch((error) => {alert("Error getting ProfileData", error); alert(error)});
+        }
+
+
+        
+    
 
 
     render() {
+        if(this.state.goBackToHomePage===true){
+            return(
+                <Redirect push
+                    to={"/"}
+                    />
+                )
+        }
         return (
-            <div className="Container postContainer">
+            <div className="container postContainer">
+                <div className="row">
+                <div  className="col-8">
+                <div className="container">
                 <div className="row">
                 
                     <div className="col-2">
@@ -74,7 +157,52 @@ export default class PostView extends Component {
                     NissanUSA This is a comment
                     </div>
                 </div>
+                </div>
+                </div>
+                <div  className="col-4">
+                <div className="container fill  CommentSection border">
+                    <div className="row TopCommentSection border-bottom" >
+                            <div className="col d-flex justify-content-center align-items-center">
+                            
+                            <h2>Comment Section</h2>
 
+                            </div>
+                    </div>
+                    <div className="row CommentFeed overflow-auto">
+                        <div className="col noPad ">
+                            
+                            <ul className="list-group list-group-flush">
+                                    {this.state.comments.map(item => (
+                                     <li className="list-group-item" key={item}>{item.user}: {item.text}</li>
+                                    ))}
+                                
+                               
+                            </ul>
+
+
+
+
+                        </div>
+                    </div>
+                    <div className="row BottomCommentSection border-top" >
+                        <div className="col d-flex justify-content-center align-items-center">
+                            
+                            {/*<div className="d-flex justify-content-center align-items-center align-self-center">*/}
+                                <div className="input-group mb-3 noPad noMar">
+                                    <input type="text" class="form-control" aria-label="Text input with segmented dropdown button for commenting" placeholder="Comment Here"  aria-describedby="button-addon2"/>
+                                    
+                                    <div className="input-group-append">
+                                        <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => this.OnPostCommentButtonClicked(e)}>Post</button>
+                                    </div>
+                                </div>
+                                {/* </div>*/}
+
+                            </div>
+                        
+                    </div>
+                </div>
+                </div>
+                </div>
             </div>
         )
     }

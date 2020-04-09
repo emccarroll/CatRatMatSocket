@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import "./loginPage.css"
 import { Link } from 'react-router-dom';
+import {Redirect, useParams} from 'react-router-dom';
 
 export default class CreateLogin extends Component {
 
@@ -11,18 +12,60 @@ export default class CreateLogin extends Component {
         // this.onChangeTodoResponsible = this.onChangeTodoResponsible.bind(this);
         // this.onChangeTodoPriority = this.onChangeTodoPriority.bind(this);
         // this.onSubmit = this.onSubmit.bind(this);
-
-        // this.state = {
-        //     todo_description: '',
-        //     todo_responsible: '',
-        //     todo_priority: '',
-        //     todo_completed: false
-        // }
+            this.onSubmit = this.onSubmit.bind(this);
+            this.handleInputChange = this.handleInputChange.bind(this);
+         this.state = {
+             username: '',
+             password: '',
+             goToHomePage: false
+         }
     }
 
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.value;
+        const name = target.name;
+    
+        this.setState({
+          [name]: value
+        });
+      }
 
-    // onSubmit(e) {
-    //     e.preventDefault();
+     onSubmit(e) {
+         e.preventDefault();
+        console.log("chicken");
+
+        fetch(
+            "http://localhost:3000/users/login",
+            {
+                //credentials: 'include',
+                
+              method: "post",
+              headers: {
+                'Content-Type': 'application/json'},
+              body:JSON.stringify({
+                "username": "jacobTesterman2",
+	            "password": "securepassword?"
+              }),
+                
+              
+            }
+          )
+            .then((res) => res.text())
+            .then((result) => {
+                console.log(result);
+                this.setState(state => ({
+                    goToHomePage:true
+                  }));
+                
+              
+            })
+            .catch((error) => {alert("Error Logging In", error); alert(error)});
+
+
+
+
+
 
     //     console.log(`Form submitted:`);
     //     console.log(`Todo Description: ${this.state.todo_description}`);
@@ -35,27 +78,36 @@ export default class CreateLogin extends Component {
     //         todo_priority: '',
     //         todo_completed: false
     //     })
-    // }
+    }
 
     render() {
+        if(this.state.goToHomePage===true){
+            return(
+                <Redirect push
+                    to={"/"}
+                    />
+                )
+        }
         return (
             <div style={{ marginTop: 10 }}>
                 <h3>Login:</h3>
                 <form onSubmit={this.onSubmit}>
                     <div className="form-group">
                         <label>Username: </label>
-                        <input type="username"
+                        <input name="username" type="username"
                             className="form-control"
-
+                            value={this.state.username}
+                            onChange={this.handleInputChange}
 
                         />
                     </div>
                     <div className="form-group">
                         <label>Password: </label>
-                        <input
+                        <input name="password"
                             type="password"
                             className="form-control"
-
+                            value={this.state.password}
+                            onChange={this.handleInputChange}
 
                         />
                     </div>
@@ -67,7 +119,7 @@ export default class CreateLogin extends Component {
                             <div className="col"></div>
 
 
-                            <button className="col-4 btn btn-primary" type="button">
+                            <button className="col-4 btn btn-primary" type="submit">
                                 Login
                             </button>
                         </div>
