@@ -19,12 +19,14 @@ export default class PostView extends Component {
         
             postData: "",
                 comments: [],
-                goBackToHomePage:false
+                goBackToHomePage:false,
+                commentInputText: ''
                 
         };
     
         // This binding is necessary to make `this` work in the callback
         this.handleLike = this.handleLike.bind(this);
+        this.handleInputChange2 = this.handleInputChange2.bind(this);
         this.handleComment = this.handleComment.bind(this);
         this.OnPostCommentButtonClicked = this.OnPostCommentButtonClicked.bind(this);
       }
@@ -35,6 +37,17 @@ export default class PostView extends Component {
             thepostId: postId
           }));
         this.getPost();
+      }
+
+      
+    handleInputChange2(event) {
+        const target = event.target;
+        const value = target.value;
+        const name = target.name;
+    
+        this.setState({
+          [name]: value
+        });
       }
 
     handleLike(){
@@ -87,7 +100,7 @@ handleComment(){
                 
               body: JSON.stringify({
                 
-                "text":"this.state."
+                "text": this.state.commentInputText
               }),
             }
           )
@@ -189,7 +202,7 @@ handleComment(){
                             
                             {/*<div className="d-flex justify-content-center align-items-center align-self-center">*/}
                                 <div className="input-group mb-3 noPad noMar">
-                                    <input type="text" class="form-control" aria-label="Text input with segmented dropdown button for commenting" placeholder="Comment Here"  aria-describedby="button-addon2"/>
+                                    <input type="text" class="form-control" name="commentInputText" aria-label="Text input with segmented dropdown button for commenting" placeholder="Comment Here"  aria-describedby="button-addon2" value={this.state.commentInputText} onChange={this.handleInputChange2}/>
                                     
                                     <div className="input-group-append">
                                         <button className="btn btn-outline-primary" type="button" id="button-addon2" onClick={(e) => this.OnPostCommentButtonClicked(e)}>Post</button>
