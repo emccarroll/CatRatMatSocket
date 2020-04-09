@@ -186,7 +186,7 @@ handleComment(){
                             
                             <ul className="list-group list-group-flush">
                                     {this.state.comments.map(item => (
-                                     <li className="list-group-item" key={item}>{item.user}: {item.text}</li>
+                                     <li className="list-group-item text-wrap text-break" key={item}>{item.user}: {item.text}</li>
                                     ))}
                                 
                                
