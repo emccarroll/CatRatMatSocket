@@ -127,7 +127,7 @@ userRoutes.route('/login').post(function (req, res) {
 
         if (accounts.length == 0) {
             res.send('login incorrect');
-            console.log('no user');
+            console.log('could not find user:' + req.body.username);
         } else {
 
             bcrypt.compare(req.body.password, accounts[0].passwordHash, function (err, result) {
