@@ -38,9 +38,9 @@ export default class CreateLogin extends Component {
         fetch(
             "http://localhost:3000/users/login",
             {
-                //credentials: 'include',
+              credentials: 'include',
                 
-              method: "post",
+              method: "POST",
               headers: {
                 'Content-Type': 'application/json'},
               body:JSON.stringify({

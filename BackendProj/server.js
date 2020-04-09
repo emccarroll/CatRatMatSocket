@@ -15,11 +15,18 @@ const mongoPort = 27017;
 const postRoutes = express.Router();
 const userRoutes = express.Router();
 
-app.use(cors());
+const corsOptions = {
+    origin: 'http://localhost:8000',
+    methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
+    credentials: true, 
+    allowedHeaders: "Content-Type, Authorization, X-Requested-With"
+}
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(cookieParser('434secretfortestingpurposes12'));
-app.use('/posts', postRoutes);
-app.use('/users',cors(), userRoutes);
+app.use('/posts',cors(corsOptions), postRoutes);
+app.use('/users',cors(corsOptions), userRoutes);
 
 const saltRounds = 10;
 
@@ -117,7 +124,7 @@ userRoutes.route('/createAccount').post(function (req, res) {
     });
 });
 
-userRoutes.route('/login').post(function (req, res) {
+app.post('/users/login',cors(corsOptions),(req, res,next) => {
 
     Account.find({ user: req.body.username }, function (err, accounts) {
         if (err) {
@@ -140,7 +147,10 @@ userRoutes.route('/login').post(function (req, res) {
                         });
                         res.cookie('authToken', token, { maxAge: 30 * 60000, path: "/" });
                         res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, path: "/"});
-                        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000');
+                        // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000/login');
+                        // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+                        // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+                        // res.setHeader('Access-Control-Allow-Credentials', true);
                         res.send('login correct (TODO make this functional)');
                     });
 
