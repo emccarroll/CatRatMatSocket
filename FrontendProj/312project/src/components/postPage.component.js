@@ -79,7 +79,7 @@ handleComment(){
         fetch(
             "http://localhost:3000/posts/comment/"+postId,
             {
-                //credentials: 'include',
+                credentials: 'include',
                // mode: "same-origin",
               method: "post",
               headers: {

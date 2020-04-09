@@ -9,8 +9,8 @@ export default class HomePage extends Component {
         super(props);
         this.state = {isAllContent: false,
             GoToCommentPage:false,
-            SelectedPost:"5e8e7fc5a7bea00015f79fd3",
-        
+            SelectedPost:"",
+            posts: []
         
         
         };
@@ -19,6 +19,37 @@ export default class HomePage extends Component {
         this.FeedSwitch = this.FeedSwitch.bind(this);
         this.OnGoToCommentsButtonClicked=this.OnGoToCommentsButtonClicked.bind(this);
       }
+      componentDidMount() {
+
+        this.getPosts();
+      }
+
+      getPosts(){
+        
+        fetch(
+            "http://localhost:3000/posts",
+            {
+              method: "get"
+              
+            }
+          )
+            .then((res) => res.json())
+            .then((result) => {
+                console.log(result);
+                this.setState(state => ({
+                    posts: result
+                  }));
+                
+              
+            })
+            .catch((error) => {alert("Error getting Posts", error); alert(error)});
+    
+    
+    
+    
+    }
+
+
 
     FeedSwitch(){
         this.setState(state => ({
@@ -43,10 +74,10 @@ export default class HomePage extends Component {
         }
 
         const elems=["Cat1","Cat2","Cat3","Cat4"];
-        const items=[];
-        for(const [index,value] of elems.entries()){
-            items.push(<PostView OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>);
-        }
+       // const items=[];
+        //for(const [index,value] of elems.entries()){
+        //    items.push(<PostView OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>);
+        //}
         return (
             <div className="Container">
               <div className="row">
@@ -73,7 +104,10 @@ export default class HomePage extends Component {
                     </div>
                     <div className="row">
                         <div className="col-12">
-                        {items}
+                        {this.state.posts.map(item => (
+                                     <PostView key={item} postId={item._id} OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>
+                                    ))}
+                        
                         </div>
                     
                     

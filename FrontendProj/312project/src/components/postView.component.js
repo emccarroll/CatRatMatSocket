@@ -11,7 +11,7 @@ export default class PostView extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {postId:"5e8e7fc5a7bea00015f79fd3",isLiked: false, isCommented: false};
+        this.state = {isLiked: false, isCommented: false};
     
         // This binding is necessary to make `this` work in the callback
         this.handleLike = this.handleLike.bind(this);
@@ -27,7 +27,7 @@ export default class PostView extends Component {
     }
     handleComment(){
         
-        this.props.OnGoToCommentsButtonClicked(this.state.postId);
+        this.props.OnGoToCommentsButtonClicked(this.props.postId);
         this.setState(state => ({
             isCommented: !state.isCommented
           }));
