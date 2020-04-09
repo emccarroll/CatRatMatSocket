@@ -145,8 +145,8 @@ userRoutes.route('/login').post(function (req, res) {
                             accounts[0].authSession = hash;
                             accounts[0].save();
                         });
-                        res.cookie('authToken', token, { maxAge: 30 * 60000, path: "/" });
-                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, path: "/"});
+                        res.cookie('authToken', token, { maxAge: 30 * 60000, httpOnly: true });
+                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, httpOnly: true});
                         // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000/login');
                         // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
                         // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
