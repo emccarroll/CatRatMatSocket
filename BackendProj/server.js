@@ -124,7 +124,7 @@ userRoutes.route('/createAccount').post(function (req, res) {
     });
 });
 
-app.post('/users/login',cors(corsOptions),(req, res,next) => {
+userRoutes.route('/login').post(function (req, res) {
 
     Account.find({ user: req.body.username }, function (err, accounts) {
         if (err) {
@@ -188,16 +188,21 @@ postRoutes.route('/comment/:id').post(function (req, res) {
                     Post.findById(req.params.id, function (err, post) {
                         if (!post)
                             res.status(404).send("data is not found");
-                        else
+                        else if (err){
+                            res.status(404).send("data is not found!");
+                            console.log(err);
+                        }
+                        else{
                 
-                            post.comments.push({user: account.user, text: req.body.text});
+                        post.comments.push({user: account.user, text: req.body.text});
                 
                         post.save().then(post => {
                             res.json('Post updated!');
                         })
-                            .catch(err => {
+                        .catch(err => {
                                 res.status(400).send("Update not possible");
-                            });
+                        });
+                        }
                     });
                 }else{
                     res.send('invalid authentication token!');
