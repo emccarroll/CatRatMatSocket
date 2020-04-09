@@ -19,7 +19,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser('434secretfortestingpurposes12'));
 app.use('/posts', postRoutes);
-app.use('/users', userRoutes);
+app.use('/users',cors(), userRoutes);
 
 const saltRounds = 10;
 
