@@ -15,11 +15,18 @@ const mongoPort = 27017;
 const postRoutes = express.Router();
 const userRoutes = express.Router();
 
-app.use(cors());
+const corsOptions = {
+    origin: 'http://localhost:8000',
+    methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
+    credentials: true, 
+    allowedHeaders: "Content-Type, Authorization, X-Requested-With"
+}
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(cookieParser('434secretfortestingpurposes12'));
-app.use('/posts', postRoutes);
-app.use('/users',cors(), userRoutes);
+app.use('/posts',cors(corsOptions), postRoutes);
+app.use('/users',cors(corsOptions), userRoutes);
 
 const saltRounds = 10;
 
@@ -138,9 +145,12 @@ userRoutes.route('/login').post(function (req, res) {
                             accounts[0].authSession = hash;
                             accounts[0].save();
                         });
-                        res.cookie('authToken', token, { maxAge: 30 * 60000, path: "/" });
-                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, path: "/"});
-                        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000');
+                        res.cookie('authToken', token, { maxAge: 30 * 60000, httpOnly: true });
+                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, httpOnly: true});
+                        // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000/login');
+                        // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+                        // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+                        // res.setHeader('Access-Control-Allow-Credentials', true);
                         res.send('login correct (TODO make this functional)');
                     });
 
@@ -178,16 +188,21 @@ postRoutes.route('/comment/:id').post(function (req, res) {
                     Post.findById(req.params.id, function (err, post) {
                         if (!post)
                             res.status(404).send("data is not found");
-                        else
+                        else if (err){
+                            res.status(404).send("data is not found!");
+                            console.log(err);
+                        }
+                        else{
                 
-                            post.comments.push({user: account.user, text: req.body.text});
+                        post.comments.push({user: account.user, text: req.body.text});
                 
                         post.save().then(post => {
                             res.json('Post updated!');
                         })
-                            .catch(err => {
+                        .catch(err => {
                                 res.status(400).send("Update not possible");
-                            });
+                        });
+                        }
                     });
                 }else{
                     res.send('invalid authentication token!');
