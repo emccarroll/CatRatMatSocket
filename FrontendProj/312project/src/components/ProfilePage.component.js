@@ -6,10 +6,13 @@ export default class ProfilePage extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {isFollowing: false};
+        this.state = {isFollowing: false,
+            posts: []
+            };
     
         // This binding is necessary to make `this` work in the callback
         this.handleFollow = this.handleFollow.bind(this);
+        this.OnGoToCommentsButtonClicked=this.OnGoToCommentsButtonClicked.bind(this);
       }
 
     handleFollow(){
@@ -18,14 +21,50 @@ export default class ProfilePage extends Component {
             isFollowing: !state.isFollowing
           }));
     }
+    OnGoToCommentsButtonClicked(postId){
+
+        this.setState({GoToCommentPage:true,
+        SelectedPost: postId});
+    }
+
+
+    componentDidMount() {
+
+        this.getPosts();
+      }
+
+      getPosts(){
+        
+        fetch(
+            "http://localhost:3000/posts",
+            {
+              method: "get"
+              
+            }
+          )
+            .then((res) => res.json())
+            .then((result) => {
+                console.log(result);
+                this.setState(state => ({
+                    posts: result
+                  }));
+                
+              
+            })
+            .catch((error) => {alert("Error getting Posts", error); alert(error)});
+
+    }
+
+
+
 
 
     render() {
-        const elems=["Cat1","Cat2","Cat3","Cat4"];
-        const items=[];
-        for(const [index,value] of elems.entries()){
-            items.push(<PostView/>);
-        }
+       // const elems=["Cat1","Cat2","Cat3","Cat4"];
+       // const items=[];
+       // for(const [index,value] of elems.entries()){
+       //     items.push(<PostView/>);
+        //}
         return (
             <div className="Container">
 
@@ -54,7 +93,9 @@ export default class ProfilePage extends Component {
                 
                 
                 
-                {items}
+                                {this.state.posts.map(item => (
+                                     <PostView key={item} postId={item._id} postData={item} OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>
+                                    ))}
 
 
 
