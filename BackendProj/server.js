@@ -79,6 +79,14 @@ postRoutes.route('/:id').get(function (req, res) {
     });
 });
 
+postRoutes.route('/user/:user').get(function (req, res) {
+
+    let username = req.params.user;
+    Post.find({user: username}, function (err, posts) {
+        res.json(posts);
+    });
+});
+
 postRoutes.route('/add').post(function (req, res) {
     Account.find({ user: req.cookies['username'] }, function (err, data) {
         console.log(req.cookies['authToken']);
