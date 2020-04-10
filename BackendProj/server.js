@@ -5,6 +5,23 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const multer  = require('multer');
+const path = require('path');
+
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'images/')
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
+    }
+  })
+
+var upload = multer({ 
+    //dest: 'images/'
+    storage: storage
+ });
 
 let Post = require('./post.model');
 let Account = require('./account.model');
@@ -14,6 +31,7 @@ const mongoIP = "mongo";
 const mongoPort = 27017;
 const postRoutes = express.Router();
 const userRoutes = express.Router();
+const dataRoutes = express.Router();
 
 const corsOptions = {
     origin: 'http://localhost:8000',
@@ -25,8 +43,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(cookieParser('434secretfortestingpurposes12'));
-app.use('/posts', cors(corsOptions), postRoutes);
+app.use('/posts', cors(corsOptions),upload.single('file'), postRoutes);
 app.use('/users', cors(corsOptions), userRoutes);
+app.use('/images', cors(corsOptions), dataRoutes);
 
 const saltRounds = 10;
 
@@ -39,6 +58,8 @@ const connection = mongoose.connection;
 connection.once('open', function () {
     console.log("MongoDB database connection established successfully");
 })
+
+app.use('/images',express.static('images'))
 
 postRoutes.route('/').get(function (req, res) {
     Post.find(function (err, posts) {
@@ -70,15 +91,17 @@ postRoutes.route('/add').post(function (req, res) {
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
                 if (result) {
                     var post = new Post();
-                    post.src = req.body.file;
-                    //TODO: implement image upload
+                    const file = req.file
+                    if (file) {
+                        post.src = req.file.path;
+                    }
+
+                    
+
                     post.text = req.body.text;
                     post.user = account.user;
                     post.votes = 0;
                     post.voters = {};
-                    // post.votes = req.body.user;
-                    // post.text = account.text;
-                    // post.src = account.src;
                     post.save();
                     res.send('post added!');
                 } else {
@@ -148,11 +171,7 @@ userRoutes.route('/login').post(function (req, res) {
                         });
                         res.cookie('authToken', token, { maxAge: 30 * 60000, httpOnly: true });
                         res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, httpOnly: true });
-                        // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000/login');
-                        // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-                        // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-                        // res.setHeader('Access-Control-Allow-Credentials', true);
-                        res.send('login correct (TODO make this functional)');
+                        res.send('login correct');
                     });
 
                 } else {
