@@ -45,7 +45,7 @@ export default class PostView extends Component {
 
                     </div>
                     <div className="col-10">
-                        MyUsername
+                        {this.props.postData.user}
                     </div>
                     </div>
                 <div className="row justify-content-center">
@@ -65,13 +65,13 @@ export default class PostView extends Component {
                     </div>
                 </div>
                 <div className="row">
-                <div className="col">
-                    8 Likes
+                <div className="col pl-4">
+                    {this.props.postData.votes} Likes
                     </div>
                 </div>
                 <div className="row">
-                <div className="col">
-                    NissanUSA This is a comment
+                <div className="col pl-4">
+                {this.props.postData.user}: {this.props.postData.text}
                     </div>
                 </div>
 

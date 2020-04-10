@@ -43,10 +43,7 @@ export default class HomePage extends Component {
               
             })
             .catch((error) => {alert("Error getting Posts", error); alert(error)});
-    
-    
-    
-    
+
     }
 
 
@@ -105,7 +102,7 @@ export default class HomePage extends Component {
                     <div className="row">
                         <div className="col-12">
                         {this.state.posts.map(item => (
-                                     <PostView key={item} postId={item._id} OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>
+                                     <PostView key={item} postId={item._id} postData={item} OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>
                                     ))}
                         
                         </div>
