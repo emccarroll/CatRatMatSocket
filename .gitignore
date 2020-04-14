@@ -1,5 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+#Ignore
+
 # dependencies
 FrontendProj/312project/node_modules
 FrontendProj/312project/.pnp
@@ -24,3 +26,6 @@ BackendProj/images/*
 FrontendProj/312project/npm-debug.log*
 FrontendProj/312project/yarn-debug.log*
 FrontendProj/312project/yarn-error.log*
+
+#Allow
+!BackendProj/images/error404.jpg

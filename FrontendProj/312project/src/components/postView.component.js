@@ -36,6 +36,14 @@ export default class PostView extends Component {
 
 
     render() {
+        //////Assigning default image to jesseerror404 if not found/////////
+        var image;
+        if(this.props.postData.src != undefined){
+            this.image = "http://localhost:3000/"+this.props.postData.src
+        }else{
+            this.image = "http://localhost:3000/images/error404.jpg"
+        }
+        ////////////////////////////////////////////////////////////
         return (
             <div className="Container postContainer">
                 <div className="row">
@@ -50,7 +58,7 @@ export default class PostView extends Component {
                     </div>
                 <div className="row justify-content-center">
                 
-                <img className="images" src="https://homemadehooplah.com/wp-content/uploads/2019/01/buffalo-chicken-wings-1.jpg" />
+                <img className="images" src={this.image} />
 
                 </div>
                 <div className="row">
