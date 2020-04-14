@@ -225,7 +225,7 @@ postRoutes.route('/comment/:id').post(function (req, res) {
                             post.comments.push({ user: account.user, text: req.body.text });
 
                             post.save().then(post => {
-                                res.json('Post updated!');
+                                res.json(post.comments.pop);
                             })
                                 .catch(err => {
                                     res.status(400).send("Update not possible");
