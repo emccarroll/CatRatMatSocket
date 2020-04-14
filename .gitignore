@@ -20,6 +20,7 @@ FrontendProj/312project/.env.development.local
 FrontendProj/312project/.env.test.local
 FrontendProj/312project/.env.production.local
 
+BackendProj/images/*
 FrontendProj/312project/npm-debug.log*
 FrontendProj/312project/yarn-debug.log*
 FrontendProj/312project/yarn-error.log*

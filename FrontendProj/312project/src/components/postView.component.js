@@ -3,7 +3,7 @@ import "./postView.css"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faHeart,faComment} from '@fortawesome/fontawesome-free-regular'
-import { faHeart as faHeartSolid } from '@fortawesome/free-solid-svg-icons'
+import { faHeart as faHeartSolid, faComment as faCommentSolid } from '@fortawesome/free-solid-svg-icons'
 
 import { s } from '@fortawesome/free-solid-svg-icons'
 
@@ -11,17 +11,29 @@ export default class PostView extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {isLiked: false};
+        this.state = {isLiked: false, isCommented: false};
     
         // This binding is necessary to make `this` work in the callback
         this.handleLike = this.handleLike.bind(this);
+        this.handleComment = this.handleComment.bind(this);
       }
 
     handleLike(){
+
+
         this.setState(state => ({
             isLiked: !state.isLiked
           }));
     }
+    handleComment(){
+        
+        this.props.OnGoToCommentsButtonClicked(this.props.postId);
+        this.setState(state => ({
+            isCommented: !state.isCommented
+          }));
+        
+    }
+
 
     render() {
         return (
@@ -33,7 +45,7 @@ export default class PostView extends Component {
 
                     </div>
                     <div className="col-10">
-                        MyUsername
+                        {this.props.postData.user}
                     </div>
                     </div>
                 <div className="row justify-content-center">
@@ -49,17 +61,17 @@ export default class PostView extends Component {
                     <FontAwesomeIcon className="like" icon={this.state.isLiked? faHeartSolid : faHeart} size="2x"  onClick={(e)=> this.handleLike(e)}/>
                     </div>
                     <div className="col-1">
-                    <FontAwesomeIcon icon={faComment} size="2x" />
+                    <FontAwesomeIcon className="like" icon={this.state.isCommented? faCommentSolid : faComment} size="2x" onClick={(e)=> this.handleComment(e)}/>
                     </div>
                 </div>
                 <div className="row">
-                <div className="col">
-                    8 Likes
+                <div className="col pl-4">
+                    {this.props.postData.votes} Likes
                     </div>
                 </div>
                 <div className="row">
-                <div className="col">
-                    NissanUSA This is a comment
+                <div className="col pl-4">
+                {this.props.postData.user}: {this.props.postData.text}
                     </div>
                 </div>
 
