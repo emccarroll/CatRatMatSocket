@@ -132,7 +132,7 @@ handleComment(){
         return (
             <div className="container postContainer">
                 <div className="row">
-                <div  className="col-8">
+                <div  className="col-7">
                 <div className="container">
                 <div className="row">
                 
@@ -141,7 +141,7 @@ handleComment(){
 
                     </div>
                     <div className="col-10">
-                        MyUsername
+                        {this.state.postData.user}
                     </div>
                     </div>
                 <div className="row justify-content-center">
@@ -162,17 +162,17 @@ handleComment(){
                 </div>
                 <div className="row">
                 <div className="col">
-                    8 Likes
+                {this.state.postData.votes}  Likes
                     </div>
                 </div>
                 <div className="row">
                 <div className="col">
-                    NissanUSA This is a comment
+                    {this.state.postData.user}: {this.state.postData.text}
                     </div>
                 </div>
                 </div>
                 </div>
-                <div  className="col-4">
+                <div  className="col-5">
                 <div className="container fill  CommentSection border">
                     <div className="row TopCommentSection border-bottom" >
                             <div className="col d-flex justify-content-center align-items-center">
@@ -186,7 +186,7 @@ handleComment(){
                             
                             <ul className="list-group list-group-flush">
                                     {this.state.comments.map(item => (
-                                     <li className="list-group-item" key={item}>{item.user}: {item.text}</li>
+                                     <li className="list-group-item text-wrap text-break" key={item}>{item.user}: {item.text}</li>
                                     ))}
                                 
                                
