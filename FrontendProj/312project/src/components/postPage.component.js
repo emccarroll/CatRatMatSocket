@@ -146,7 +146,7 @@ handleComment(){
                     </div>
                 <div className="row justify-content-center">
                 
-                <img className="images" src="https://homemadehooplah.com/wp-content/uploads/2019/01/buffalo-chicken-wings-1.jpg" />
+                <img className="images" src="" />
 
                 </div>
                 <div className="row">
