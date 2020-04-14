@@ -43,15 +43,16 @@ export default class CreatePost extends Component {
         //console.log(`Post Description: ${this.state.Post_description}`);
         
         const fd = new FormData();
-        fd.append('image', this.state.image_obj);
+        fd.append('file', this.state.image_obj);
+        fd.append('text', this.state.image_description);
         const config = {
             headers: {
                 'content-type': 'multipart/form-data'
             }
         };
 
-
-        axios.post('http://localhost:3000/image', fd, {
+        axios.defaults.withCredentials = true;
+        axios.post('http://localhost:3000/posts/add',fd, {
             onUploadProgress: progressEvent => {
                 console.log('Upload Progress: '+ progressEvent.loaded / progressEvent.total * 100 + '%')
             }
