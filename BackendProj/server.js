@@ -264,7 +264,9 @@ postRoutes.route('/upvote/:id').post(function (req, res) {
                             console.log(voter);
 
                             if (voter=='upvote') {
-                                res.status(200).send("you have already upvoted this!");
+                                post.votes -= 1;
+                                post.voters.set(account.user,'neutral');
+                                res.status(200).send("unupvote!");
                             } else {
                                 post.votes += 1;
                                 post.voters.set(account.user, 'upvote');
@@ -306,7 +308,9 @@ postRoutes.route('/downvote/:id').post(function (req, res) {
                             console.log(voter);
 
                             if (voter=='downvote') {
-                                res.status(200).send("you have already downvoted this!");
+                                post.votes += 1;
+                                post.voters.set(account.user,'neutral');
+                                res.status(200).send("undownvote!");
                             } else {
                                 post.votes -= 1;
                                 post.voters.set(account.user, 'downvote');
