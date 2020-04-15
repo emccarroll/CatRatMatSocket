@@ -6,9 +6,10 @@ This is a CSE312 Social Media Site Group Project. THis social media site will be
 ### [Our frontend video][frontend-vid]
 
 
-# Note Our docker file is located in the Frontend/312project folder. Also you can start the docker container using the command
+# Note Our docker-compose file is located in the root directory. Use the following command to run an instance of MongoDB, React, and NodeJS Express in separate containers.
 ```
-docker container run --publish 8000:3000 --detach <image_name>
+docker-container build
+docker-compose up --detach
 ```
 
 [frontend-vid]: https://youtu.be/1UMlBIyqAlE
