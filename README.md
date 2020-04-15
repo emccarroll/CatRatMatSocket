@@ -6,8 +6,8 @@ This is a CSE312 Social Media Site Group Project. THis social media site will be
 ### [Our frontend video][frontend-vid]
 
 
-# Note Our docker-compose file is located in the root directory. 
-Use the following command to run an instance of MongoDB, React, and NodeJS Express in separate containers.
+# Note: Our docker-compose file is located in the root directory. 
+Use the following command to run an instance of our app. The docker-compose will create a separate container for MongoDB, React, and our NodeJS serevr.
 ```
 docker-container build
 docker-compose up --detach
