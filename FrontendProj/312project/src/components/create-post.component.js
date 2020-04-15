@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import "./create-postPage.css";
 
 export default class CreatePost extends Component {
 
@@ -15,8 +14,7 @@ export default class CreatePost extends Component {
         this.state = {
             image_obj: null,
             image_name:'Select image',
-            image_description: '',
-            upload_progress: ''
+            image_description: ''
         }
     }
 
@@ -27,17 +25,13 @@ export default class CreatePost extends Component {
     }
 
     onChangePostFile = e => {
-        if(e.target.value.length > 0){
-            var obj = e.target.files[0];
-            var filename = obj['name'];
-            console.log(obj);
-            this.setState({
-                image_obj: obj,
-                image_name: filename
-            });
-        } else {
-            console.log("cancel was clicked");
-        }
+        var obj = e.target.files[0]
+        var filename = obj['name'];
+        console.log(obj);
+        this.setState({
+            image_obj: obj,
+            image_name: filename
+        });
     }
 
 
@@ -60,30 +54,23 @@ export default class CreatePost extends Component {
         axios.defaults.withCredentials = true;
         axios.post('http://localhost:3000/posts/add',fd, {
             onUploadProgress: progressEvent => {
-                this.setState({
-                    upload_progress: "Upload Progress: " + progressEvent.loaded / progressEvent.total * 100 + '%'
-                });
+                console.log('Upload Progress: '+ progressEvent.loaded / progressEvent.total * 100 + '%')
             }
         }, config).then(res=>{
             console.log(res);
             if (res.status == 200){
                 console.log("Upload complete!");
-                this.setState({
-                    upload_progress: 'Upload Successful'
-                });
             }
             else{
-                console.log("Upload failed");
-                this.setState({
-                    upload_progress: 'Upload failed. Please try again.'
-                });
+                console.log("Upload failed")
             }
-            this.setState({
-                image_description: '',
-                image_obj: null,
-                image_name: 'Choose image'
-            });
         });
+
+        this.setState({
+            image_description: '',
+            image_obj: null,
+            image_name: 'Choose image'
+        })
     }
 
     render() {
@@ -95,7 +82,7 @@ export default class CreatePost extends Component {
                         <label>Description: </label>
                         <input  type="text"
                                 className="form-control"
-                                value={this.state.image_description}
+                                value={this.state.Post_description}
                                 onChange={this.onChangePostDescription}
                                 />
                     </div>
@@ -105,9 +92,8 @@ export default class CreatePost extends Component {
                         <label class="custom-file-label" for="customFile">{this.state.image_name}</label>
                         </div>
 
-                    <div className="submit-upload" style={{marginTop: 10}}>
+                    <div className="form-group" style={{marginTop: 10}}>
                         <input type="submit" value="Create Post" className="btn btn-primary" />
-                        <span style={{marginLeft: 10}}>{this.state.upload_progress}</span>
                     </div>
                 </form>
             </div>
