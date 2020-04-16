@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 
 export default class CreatePost extends Component {
 
@@ -56,14 +55,11 @@ export default class CreatePost extends Component {
             }
         };
 
-        axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3000/posts/add',fd, {
-            onUploadProgress: progressEvent => {
-                this.setState({
-                    upload_progress: "Upload Progress: " + progressEvent.loaded / progressEvent.total * 100 + '%'
-                });
-            }
-        }, config).then(res=>{
+        fetch('http://localhost:3000/posts/add', {
+            credentials: 'include',
+            method: 'POST',
+            body: fd
+        }).then(res=>{
             console.log(res);
             if (res.status == 200){
                 console.log("Upload complete!");
@@ -81,8 +77,9 @@ export default class CreatePost extends Component {
                 image_description: '',
                 image_obj: null,
                 image_name: 'Choose image'
-            });
+            })
         });
+        
     }
 
     render() {
