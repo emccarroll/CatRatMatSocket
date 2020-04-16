@@ -10,15 +10,7 @@ const path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
-io.on('connection', (socket) => {
-    console.log('a user connected');
-    socket.on('chat message', (msg) => {
-        console.log('message: ' + msg);
-      });
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-      });
-});
+
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
@@ -41,6 +33,7 @@ var upload = multer({
 
 let Post = require('./post.model');
 let Account = require('./account.model');
+let socketMap = require('./socketMap.model');
 
 const PORT = 3000;
 const mongoIP = "mongo";
@@ -48,6 +41,71 @@ const mongoPort = 27017;
 const postRoutes = express.Router();
 const userRoutes = express.Router();
 const dataRoutes = express.Router();
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('listenTo', (msg) => {
+        var postArr = JSON.parse(msg);
+        
+        //Verify these are legitimate post IDs
+
+        
+            var promise = new Promise(function(resolve, reject){
+                console.log()
+                for (const postID of postArr) {
+                    var loops = 0;
+                    Post.findById(postID, function (err, post) {
+                        if (!post){
+                            console.log('incorrect!');
+                            socket.emit({status:'bitch ass post ID fuck shit'});
+                            reject();
+                        }
+                        else if (err) {
+                            socket.emit({status:'bitch ass post ID fuck shit'});
+                            console.log(err);
+                            reject();
+                        }
+                        loops+=1;
+                        if (loops==postArr.length){
+                            resolve();
+                        }
+                        
+                    });
+                    
+                }
+                
+                
+                
+            });
+        
+        
+        
+    
+        promise. 
+            then(function () { 
+                socket.leave('homepage');
+                for (const postID of postArr) {
+                    console.log('joined '+postID);
+                    socket.join(postID);
+                }
+            }). 
+            catch(function () { 
+                console.log('They used the wrong post IDS THOSE FOOLS HAHAHAHAHAHAHAHA'); 
+            }); 
+
+       
+
+        
+            
+        
+      });
+      socket.on('homepage', () => {
+        socket.join('homepage');
+      });
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+      });
+});
 
 const corsOptions = {
     origin: 'http://localhost:8000',
@@ -129,8 +187,12 @@ postRoutes.route('/add').post(function (req, res) {
                     post.user = account.user;
                     post.votes = 0;
                     post.voters = {};
+                    var responseObj = {updateType: "post", post: post};
                     post.save();
                     res.send('post added!');
+                    
+                    io.to(req.params.id).emit('update',responseObj);
+                    io.to('homepage').emit('update',responseObj);
                 } else {
                     res.send('invalid authentication token!');
                 }
@@ -240,11 +302,15 @@ postRoutes.route('/comment/:id').post(function (req, res) {
                             console.log(err);
                         }
                         else {
-
-                            post.comments.push({ user: account.user, text: req.body.text });
+                            var commentObj = { user: account.user, text: req.body.text };
+                            post.comments.push(commentObj);
 
                             post.save().then(post => {
-                                res.json(post.comments.pop);
+                                res.json(commentObj);
+                                var responseObj = {id: req.params.id, updateType: "comment", comment: commentObj};
+                                io.to(req.params.id).emit('update',responseObj);
+                                io.to('homepage').emit('update',responseObj);
+                                
                             })
                                 .catch(err => {
                                     res.status(400).send("Update not possible");
@@ -289,10 +355,12 @@ postRoutes.route('/upvote/:id').post(function (req, res) {
                             } else {
                                 post.votes += 1;
                                 post.voters.set(account.user, 'upvote');
-                                post.save();
                                 res.status(200).send("upvote successful");
-
                             }
+                            post.save();
+                            var responseObj = {id: req.params.id, updateType: "vote", vote: post.votes};
+                            io.to(req.params.id).emit('update',responseObj);
+                            io.to('homepage').emit('update',responseObj);
                         }
                     });
                 } else {
