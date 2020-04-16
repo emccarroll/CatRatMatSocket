@@ -129,7 +129,18 @@ handleComment(){
                     />
                 )
         }
+
+        //////Assigning default image to jesseerror404 if not found/////////
+        var image;
+        if(this.state.postData.src != undefined){
+            this.image = "http://localhost:3000/"+this.state.postData.src
+        }else{
+            this.image = "http://localhost:3000/images/error404.jpg"
+        }
+        ////////////////////////////////////////////////////////////        
+
         return (
+            
             <div className="container postContainer">
                 <div className="row">
                 <div  className="col-7">
@@ -146,7 +157,7 @@ handleComment(){
                     </div>
                 <div className="row justify-content-center">
                 
-                <img className="images" src="https://homemadehooplah.com/wp-content/uploads/2019/01/buffalo-chicken-wings-1.jpg" />
+                <img className="images" src={this.image} />
 
                 </div>
                 <div className="row">
