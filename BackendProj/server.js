@@ -7,6 +7,22 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const multer  = require('multer');
 const path = require('path');
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('chat message', (msg) => {
+        console.log('message: ' + msg);
+      });
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+      });
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
 
 
 var storage = multer.diskStorage({
@@ -228,7 +244,7 @@ postRoutes.route('/comment/:id').post(function (req, res) {
                             post.comments.push({ user: account.user, text: req.body.text });
 
                             post.save().then(post => {
-                                res.json('Post updated!');
+                                res.json(post.comments.pop);
                             })
                                 .catch(err => {
                                     res.status(400).send("Update not possible");
@@ -355,6 +371,6 @@ postRoutes.route('/update/:id').post(function (req, res) {
 
 
 
-app.listen(PORT, function () {
+server.listen(PORT, function () {
     console.log("Server is running on Port: " + PORT);
 });
