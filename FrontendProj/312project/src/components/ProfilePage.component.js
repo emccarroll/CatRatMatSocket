@@ -29,10 +29,15 @@ export default class ProfilePage extends Component {
 
 
     componentDidMount() {
-
+        console.log("on the profile page")
+        //dthis.props.socketHandler("ProfilePage");
         this.getPosts();
       }
 
+    componentWillUnmount(){
+        console.log("leaving the profile page")
+            
+        }
       getPosts(){
         
         fetch(
@@ -94,7 +99,7 @@ export default class ProfilePage extends Component {
                 
                 
                                 {this.state.posts.map(item => (
-                                     <PostView key={item} postId={item._id} postData={item} OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>
+                                     <PostView key={item._id} postId={item._id} postData={item} OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>
                                     ))}
 
 

@@ -6,6 +6,7 @@ import {faHeart,faComment} from '@fortawesome/fontawesome-free-regular'
 import { faHeart as faHeartSolid, faComment as faCommentSolid } from '@fortawesome/free-solid-svg-icons'
 
 import { s } from '@fortawesome/free-solid-svg-icons'
+import {Redirect} from 'react-router-dom';
 
 export default class PostView extends Component {
 
@@ -13,17 +14,62 @@ export default class PostView extends Component {
         super(props);
         this.state = {isLiked: false, isCommented: false};
     
+        if(this.props.postData.voters[sessionStorage.getItem("username")]==="upvote"){           
+                this.state.isLiked=true;
+        }
+        else{
+            
+                this.state.isLiked=false;
+           
+        }
+
         // This binding is necessary to make `this` work in the callback
         this.handleLike = this.handleLike.bind(this);
         this.handleComment = this.handleComment.bind(this);
       }
 
+
+
+
+
     handleLike(){
+        if(!sessionStorage.getItem("username")){
+            this.setState({
+                goToLogin: true
+            })
+        }
+        else{
+            const { postId } = this.props;
+            fetch(
+                "http://localhost:3000/posts/upvote/"+postId,
+                {
+                    credentials: 'include',
+                   // mode: "same-origin",
+                  method: "post",
+                  headers: {
+                    'Content-Type': 'application/json'}
+                }
+              )
+                .then((res) => res.text())
+                .then((result) => {
+                    console.log("we smashed that like button and  got");
+                    console.log(result);
+                    
+                    
+                  
+                })
+                .catch((error) => {alert("Error getting ProfileData", error); alert(error)});
+            
+    
+    
+             this.setState(state => ({
+                isLiked: !state.isLiked
+              })); 
 
 
-        this.setState(state => ({
-            isLiked: !state.isLiked
-          }));
+        }
+
+        
     }
     handleComment(){
         
@@ -34,8 +80,48 @@ export default class PostView extends Component {
         
     }
 
+    componentDidMount() {
+        console.log("mounted babby");
+        console.log(this.props.postData.voters[sessionStorage.getItem("username")]);
+        if(this.props.postData.voters[sessionStorage.getItem("username")]==="upvote"){
+            this.setState(state =>({
+                isLiked:true
+            }));
+        }
+        else{
+            this.setState(state =>({
+                isLiked:false
+            }));
+        }
+      }
+
+    componentDidUpdate(prevProps){
+        if(this.props.postData!==prevProps.postData){
+            if(this.props.postData.voters[sessionStorage.getItem("username")]==="upvote"){
+                this.setState(state =>({
+                    isLiked:true
+                }));
+            }
+            else{
+                this.setState(state =>({
+                    isLiked:false
+                }));
+            }
+        }
+        
+
+    }
+
+
 
     render() {
+        if(this.state.goToLogin===true){
+            return(
+                <Redirect push
+                    to={"/login"}
+                    />
+                )
+        }
         //////Assigning default image to jesseerror404 if not found/////////
         var image;
         if(this.props.postData.src != undefined){
@@ -44,6 +130,8 @@ export default class PostView extends Component {
             this.image = "http://localhost:3000/images/error404.jpg"
         }
         ////////////////////////////////////////////////////////////
+
+
         return (
             <div className="Container postContainer">
                 <div className="row">
