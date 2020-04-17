@@ -130,7 +130,7 @@ Express is a technology used on the server side of web applications that handles
 
     The photo below encapsulates all of the steps express goes through when receiving and responding to each http request. Route layers are encapsulated in routes, routes are encapsulated inside of router layers, and routers are encapsulated inside of the initialized express app. The stacks of layers are iterated over until the proper rote is found, and then the respective handlerFunctions are executed, and the respective http request is responded to.
 
-    ![alt text](https://www.sohamkamani.com/267bfd0839b56afc11b097382797ae8d/express-routing-http.svg "Logo Title Text 1")
+    ![alt text](https://www.sohamkamani.com/267bfd0839b56afc11b097382797ae8d/express-routing-http.svg "Express diagram")
 
     [Image Source][img]
 
@@ -138,7 +138,7 @@ Express is a technology used on the server side of web applications that handles
 
 ## License
 
-Express has an [MIT][Express] license:
+Express has an [MIT][Express-license] license:
 
  >Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
