@@ -6,35 +6,84 @@ export default class CreateAccount extends Component {
     constructor(props) {
         super(props);
 
-        // this.onChangeTodoDescription = this.onChangeTodoDescription.bind(this);
-        // this.onChangeTodoResponsible = this.onChangeTodoResponsible.bind(this);
-        // this.onChangeTodoPriority = this.onChangeTodoPriority.bind(this);
-        // this.onSubmit = this.onSubmit.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
+        this.onChangeUsername = this.onChangeUsername.bind(this);
+        this.onChangePassword = this.onChangePassword.bind(this);
+        this.onChangePasswordVerify = this.onChangePasswordVerify.bind(this);
 
-        // this.state = {
-        //     todo_description: '',
-        //     todo_responsible: '',
-        //     todo_priority: '',
-        //     todo_completed: false
-        // }
+        this.state = {
+            username: "",
+            password: "",
+            passwordverify: "",
+            raw: {},
+            status: ""
+        }
+    }
+
+    onChangeUsername(e) {
+        this.state.raw['usersignup'] = e.target.value;
+        this.setState({
+            username: e.target.value
+        });
+    }
+
+    onChangePassword(e){
+        this.state.raw['passwordsignup'] = e.target.value;
+        this.setState({
+            password: e.target.value
+        });
+    }
+
+    onChangePasswordVerify(e){
+        this.setState({
+            passwordverify: e.target.value
+        });
     }
 
 
-    // onSubmit(e) {
-    //     e.preventDefault();
+    onSubmit(e) {
+        e.preventDefault();
 
-    //     console.log(`Form submitted:`);
-    //     console.log(`Todo Description: ${this.state.todo_description}`);
-    //     console.log(`Todo Responsible: ${this.state.todo_responsible}`);
-    //     console.log(`Todo Priority: ${this.state.todo_priority}`);
-
-    //     this.setState({
-    //         todo_description: '',
-    //         todo_responsible: '',
-    //         todo_priority: '',
-    //         todo_completed: false
-    //     })
-    // }
+        if(this.state.password.localeCompare(this.state.passwordverify)){
+            alert("Passwords do not match");
+        }
+        else{
+            console.log(JSON.stringify(this.state.raw));
+            fetch('http://localhost:3000/users/createAccount', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json',
+                    'Connection': 'keep-alive'
+                },
+                body: JSON.stringify(this.state.raw)
+            }).then(res=>{
+                console.log(res);
+                if (res.status == 200){
+                    this.setState({
+                        status: 'Account ' + this.state.username + '  created successfully!',
+                        username: '',
+                        password: '',
+                        passwordverify: ''
+                    })
+                }
+                else if (res.status == 400){
+                    this.setState({
+                        status: 'ERROR: Username ' + this.state.username + ' already exists',
+                        username: ''
+                    })
+                }
+                else{
+                    this.setState({
+                        status: 'ERROR: Something went wrong. Please try again.',
+                        username: '',
+                        password: '',
+                        passwordverify: ''
+                    })
+                }
+            });
+        } 
+    }
 
     render() {
         return (
@@ -45,6 +94,8 @@ export default class CreateAccount extends Component {
                         <label>Username: </label>
                         <input type="username"
                             className="form-control"
+                            onChange={this.onChangeUsername}
+                            value = {this.state.username}
 
 
                         />
@@ -54,7 +105,8 @@ export default class CreateAccount extends Component {
                         <input
                             type="password"
                             className="form-control"
-
+                            onChange={this.onChangePassword}
+                            value = {this.state.password}
                             required
                         />
                     </div>
@@ -63,15 +115,17 @@ export default class CreateAccount extends Component {
                         <input
                             type="password"
                             className="form-control"
-
+                            onChange={this.onChangePasswordVerify}
+                            value = {this.state.passwordverify}
                             required
                         />
                     </div>
                     <div className="form-group Container">
                         <div className="row">
-                            <button className="col-4 btn btn-primary" type="button">
+                            <button className="col-4 btn btn-primary" type="button" onClick={this.onSubmit}>
                                 Create
                             </button>
+                            <span style={{marginLeft: 10, marginTop: 7}}>{this.state.status}</span>
 
                         </div>
                         <br></br>
