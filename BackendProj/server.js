@@ -180,6 +180,38 @@ const connection = mongoose.connection;
 
 connection.once('open', function () {
     console.log("MongoDB database connection established successfully");
+    bcrypt.hash("securepassword?", saltRounds, function (err, hash) {
+
+        const username = 'jacobTesterman2';
+        const passwordHash = hash;
+        const authSession = "";
+
+
+        Account.find({ user: username }, function (err, data) {
+
+            if (err) {
+                console.log(err);
+                return;
+            }
+
+            if (data.length == 0) {
+                let account = new Account();
+                account.user = username;
+                account.passwordHash = passwordHash;
+                account.authSession = authSession;
+                account.save()
+                    .then(login => {
+                        console.log('account created!');
+                    })
+                    .catch(err => {
+                        console.log('account creation failed');
+                    });
+            }
+            else {
+                console.log('account by that name already exists!');
+            }
+        })
+    });
 })
 
 app.use('/images', express.static('images'))
