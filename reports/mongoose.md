@@ -5,7 +5,7 @@
 As mentioned above, we use Mongoose to abstract data storage and retrieval from the backend. It lets us define "Schemas" which are abstract objects that facilitate this transfer of data. We use this to store and retrive both posts and user accounts.
 
 ## How does this technology accomplish what it does?
-
+### DB Connection:
 
 ```javascript
  const promise = new Promise((resolve, reject) => {
@@ -21,6 +21,30 @@ As mentioned above, we use Mongoose to abstract data storage and retrieval from 
       _this.db = db;
 ```
 From what I can tell from this piece of code, connections to the database are facilitated through mongodb, and then wrapped by Mongoose. This makes sense because as stated above, Mongoose is a tool meant to asyncronously handle connections to the underlying MongoDB, so it wouldn't need to reimplement mongodb as long as it can utilize javascript's asyncronous toolset to access the DB.
+
+### Schemas:
+
+```javascript
+ SchemaString.cast = function cast(caster) {
+  if (arguments.length === 0) {
+    return this._cast;
+  }
+  if (caster === false) {
+    caster = v => {
+      if (v != null && typeof v !== 'string') {
+        throw new Error();
+      }
+      return v;
+    };
+  }
+  this._cast = caster;
+
+  return this._cast;
+};
+```
+I'm using the String Schema of an example of Schemas in general. What seems to be happening here (I'm omitting a large chunk of the code) is that if a new SchemaString is made, first the primitive string that is used as an argument in the constructor is run through this cast function to be used in the Schema.
+
+
 
 [Link to repository][repo]
 
