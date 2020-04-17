@@ -10,7 +10,9 @@ export default class HomePage extends Component {
         this.state = {isAllContent: false,
             GoToCommentPage:false,
             SelectedPost:"",
-            posts: []
+            posts: [],
+            prevDataFromParent: null,
+            postIds:[]
         
         
         };
@@ -20,9 +22,54 @@ export default class HomePage extends Component {
         this.OnGoToCommentsButtonClicked=this.OnGoToCommentsButtonClicked.bind(this);
       }
       componentDidMount() {
-
+        console.log("on the home page")
+        //this.props.socketHandler("HomePage");
         this.getPosts();
       }
+
+    componentWillUnmount(){
+        console.log("leaving the Home page")
+            
+        }
+
+        static getDerivedStateFromProps(props, state) {
+            // Any time the current user changes,
+            // Reset any parts of state that are tied to that user.
+            // In this simple example, that's just the email.
+            if (props.dataFromParent !== state.prevDataFromParent) {
+                if(state.postIds.includes(props.dataFromParent.id)){
+                    if(props.dataFromParent.updateType==="vote"){
+                        
+                        const {posts} =state;
+                        
+                        const i=posts.findIndex((x)=> x._id===props.dataFromParent.id);
+                        console.log("the value of i is: "+i);
+                        const postToUpdate= posts[i];
+
+                        postToUpdate.votes=props.dataFromParent.vote;
+                        postToUpdate.voters=props.dataFromParent.voters;
+                        posts[i]=postToUpdate;
+
+                        
+
+                        /* const {comments} = state;
+                        comments.push(props.dataFromParent.vote);
+                        console.log("weupdating state"); */
+                        //state.comments.push(props.dataFromParent.comment);
+                        return {
+                            prevDataFromParent: props.dataFromParent,
+                            posts:posts
+                          };
+                    }
+                }
+             
+            }
+            return null;
+          }
+
+
+
+
 
       getPosts(){
         
@@ -36,10 +83,16 @@ export default class HomePage extends Component {
             .then((res) => res.json())
             .then((result) => {
                 console.log(result);
+                var arr =Array.from(result, x=>x._id);
                 this.setState(state => ({
-                    posts: result
+                    posts: result,
+                    postIds:arr
                   }));
-                
+                  
+                  console.log("the array is");
+                  console.log(arr);
+                var x= JSON.stringify(arr);
+                  this.props.socketHandler(x);
               
             })
             .catch((error) => {alert("Error getting Posts", error); alert(error)});
@@ -102,7 +155,7 @@ export default class HomePage extends Component {
                     <div className="row">
                         <div className="col-12">
                         {this.state.posts.map(item => (
-                                     <PostView key={item} postId={item._id} postData={item} OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>
+                                     <PostView key={item._id} postId={item._id} postData={item} OnGoToCommentsButtonClicked={this.OnGoToCommentsButtonClicked}/>
                                     ))}
                         
                         </div>
