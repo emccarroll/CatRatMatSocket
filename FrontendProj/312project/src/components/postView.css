@@ -1,0 +1,25 @@
+.postContainer{
+    background-color: whitesmoke;
+    border: 2px solid rgb(0, 0, 0);
+  border-radius: 5px;
+  margin: 10px 0px;
+  padding: 0px;
+
+}
+.images{
+  padding-top: 2px;
+    max-height: 400px;
+}
+.bottomHalf {
+    content: "";
+    margin-left: 0px;
+    width: 100%;
+
+    box-shadow: 0 -5px 5px -5px #333;
+    z-index: 100;
+  }
+
+.like:hover{
+    cursor: pointer;
+    
+}
