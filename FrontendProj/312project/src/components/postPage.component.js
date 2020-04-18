@@ -23,7 +23,7 @@ export default class PostPage extends Component {
                 goBackToHomePage:false,
                 commentInputText: '',
                 prevDataFromParent: null,
-                goToLogin: true
+                goToLogin: false
                 
                 
         };
