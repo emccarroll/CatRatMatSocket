@@ -59,12 +59,18 @@ export default class CreatePost extends Component {
             credentials: 'include',
             method: 'POST',
             body: fd
-        }).then(res=>{
-            console.log(res);
-            if (res.status == 200){
+        }).then((res)=>{ return res.text() }).then((text)=>{
+            console.log(text);
+            if (text.includes("post added")){
                 console.log("Upload complete!");
                 this.setState({
                     upload_progress: 'Upload Successful'
+                });
+            }
+            else if(text.includes("invalid authentication token")){
+                console.log("Upload failed");
+                this.setState({
+                    upload_progress: 'Upload Failed. Please log in and try again.'
                 });
             }
             else{

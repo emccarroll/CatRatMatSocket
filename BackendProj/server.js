@@ -5,20 +5,12 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
-const multer  = require('multer');
+const multer = require('multer');
 const path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
-io.on('connection', (socket) => {
-    console.log('a user connected');
-    socket.on('chat message', (msg) => {
-        console.log('message: ' + msg);
-      });
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-      });
-});
+
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
@@ -27,20 +19,21 @@ app.get('/', (req, res) => {
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'images/')
+        cb(null, 'images/')
     },
     filename: function (req, file, cb) {
-      cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
+        cb(null, Date.now() + path.extname(file.originalname)) //Appending extension
     }
 })
 
-var upload = multer({ 
+var upload = multer({
     //dest: 'images/'
     storage: storage
- });
+});
 
 let Post = require('./post.model');
 let Account = require('./account.model');
+let socketMap = require('./socketMap.model');
 
 const PORT = 3000;
 const mongoIP = "mongo";
@@ -48,6 +41,117 @@ const mongoPort = 27017;
 const postRoutes = express.Router();
 const userRoutes = express.Router();
 const dataRoutes = express.Router();
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+    socket.on('listenTo', (msg) => {
+        var postArr = JSON.parse(msg);
+
+        //Verify these are legitimate post IDs
+
+
+        var promise = new Promise(function (resolve, reject) {
+            console.log()
+            for (const postID of postArr) {
+                var loops = 0;
+                Post.findById(postID, function (err, post) {
+                    if (!post) {
+                        console.log('incorrect!');
+                        socket.emit({ status: 'error: postID not found' });
+                        reject();
+                    }
+                    else if (err) {
+                        socket.emit({ status: 'error: postID not found' });
+                        console.log(err);
+                        reject();
+                    }
+                    loops += 1;
+                    if (loops == postArr.length) {
+                        resolve();
+                    }
+
+                });
+
+            }
+
+
+
+        });
+
+
+
+
+        promise.
+            then(function () {
+                socket.leave('homepage');
+                for (const postID of postArr) {
+                    console.log('joined ' + postID);
+                    socket.join(postID);
+                }
+            }).
+            catch(function () {
+                console.log('They used the wrong post IDS THOSE FOOLS HAHAHAHAHAHAHAHA');
+            });
+    });
+
+
+    socket.on('follow', (msg) => {
+        var postArr = JSON.parse(msg);
+
+        //Verify these are legitimate users
+
+
+        var promise = new Promise(function (resolve, reject) {
+            console.log()
+            for (const userID of postArr) {
+                var loops = 0;
+                Account.find({ user: userID }, function (err, post) {
+                    if (!post) {
+                        console.log('incorrect!');
+                        socket.emit({ status: 'error: username not found' });
+                        reject();
+                    }
+                    else if (err) {
+                        socket.emit({ status: 'error: username not found' });
+                        console.log(err);
+                        reject();
+                    }
+                    loops += 1;
+                    if (loops == postArr.length) {
+                        resolve();
+                    }
+
+                });
+
+            }
+
+
+
+        });
+
+
+
+
+        promise.
+            then(function () {
+                for (const userID of postArr) {
+                    console.log('joined ' + userID);
+                    socket.join(userID);
+                }
+            }).
+            catch(function () {
+                console.log('They used the wrong post IDS THOSE FOOLS HAHAHAHAHAHAHAHA');
+            });
+    });
+
+
+    socket.on('homepage', () => {
+        socket.join('homepage');
+    });
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+});
 
 const corsOptions = {
     origin: 'http://localhost:8000',
@@ -59,7 +163,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(cookieParser('434secretfortestingpurposes12'));
-app.use('/posts', cors(corsOptions),upload.single('file'), postRoutes);
+app.use('/posts', cors(corsOptions), upload.single('file'), postRoutes);
 app.use('/users', cors(corsOptions), userRoutes);
 app.use('/images', cors(corsOptions), dataRoutes);
 
@@ -69,16 +173,48 @@ const saltRounds = 10;
 app.post('/image', function (req, res) {
     console.log('receving data');
     res.send('hello world')
-  })
+})
 
 mongoose.connect('mongodb://db:27017/catratmat', { useNewUrlParser: true, useUnifiedTopology: true });
 const connection = mongoose.connection;
 
 connection.once('open', function () {
     console.log("MongoDB database connection established successfully");
+    bcrypt.hash("securepassword?", saltRounds, function (err, hash) {
+
+        const username = 'jacobTesterman2';
+        const passwordHash = hash;
+        const authSession = "";
+
+
+        Account.find({ user: username }, function (err, data) {
+
+            if (err) {
+                console.log(err);
+                return;
+            }
+
+            if (data.length == 0) {
+                let account = new Account();
+                account.user = username;
+                account.passwordHash = passwordHash;
+                account.authSession = authSession;
+                account.save()
+                    .then(login => {
+                        console.log('account created!');
+                    })
+                    .catch(err => {
+                        console.log('account creation failed');
+                    });
+            }
+            else {
+                console.log('account by that name already exists!');
+            }
+        })
+    });
 })
 
-app.use('/images',express.static('images'))
+app.use('/images', express.static('images'))
 
 postRoutes.route('/').get(function (req, res) {
     Post.find(function (err, posts) {
@@ -101,7 +237,7 @@ postRoutes.route('/:id').get(function (req, res) {
 postRoutes.route('/user/:user').get(function (req, res) {
 
     let username = req.params.user;
-    Post.find({user: username}, function (err, posts) {
+    Post.find({ user: username }, function (err, posts) {
         res.json(posts);
     });
 });
@@ -123,14 +259,19 @@ postRoutes.route('/add').post(function (req, res) {
                         post.src = req.file.path;
                     }
 
-                    
+
 
                     post.text = req.body.text;
                     post.user = account.user;
                     post.votes = 0;
                     post.voters = {};
+                    var responseObj = { updateType: "post", post: post };
                     post.save();
                     res.send('post added!');
+
+                    io.to(req.params.id).emit('update', responseObj);
+                    io.to('homepage').emit('update', responseObj);
+                    io.to(account.user).emit('update', responseObj);
                 } else {
                     res.send('invalid authentication token!');
                 }
@@ -240,11 +381,16 @@ postRoutes.route('/comment/:id').post(function (req, res) {
                             console.log(err);
                         }
                         else {
-
-                            post.comments.push({ user: account.user, text: req.body.text });
+                            var commentObj = { user: account.user, text: req.body.text };
+                            post.comments.push(commentObj);
 
                             post.save().then(post => {
-                                res.json(post.comments.pop);
+                                res.json(commentObj);
+                                var responseObj = { id: req.params.id, updateType: "comment", comment: commentObj };
+                                io.to(req.params.id).emit('update', responseObj);
+                                io.to('homepage').emit('update', responseObj);
+                                io.to(account.user).emit('update', responseObj);
+
                             })
                                 .catch(err => {
                                     res.status(400).send("Update not possible");
@@ -279,20 +425,23 @@ postRoutes.route('/upvote/:id').post(function (req, res) {
                             //Post found and user verified
                             var voters = post.voters;
                             var voter = voters.get(account.user);
-                            
+
                             console.log(voter);
 
-                            if (voter=='upvote') {
+                            if (voter == 'upvote') {
                                 post.votes -= 1;
-                                post.voters.set(account.user,'neutral');
+                                post.voters.set(account.user, 'neutral');
                                 res.status(200).send("unupvote!");
                             } else {
                                 post.votes += 1;
                                 post.voters.set(account.user, 'upvote');
-                                post.save();
                                 res.status(200).send("upvote successful");
-
                             }
+                            post.save();
+                            var responseObj = {id: req.params.id, updateType: "vote", vote: post.votes, voters: voters};
+                            io.to(req.params.id).emit('update', responseObj);
+                            io.to('homepage').emit('update', responseObj);
+                            io.to(account.user).emit('update', responseObj);
                         }
                     });
                 } else {
@@ -323,12 +472,12 @@ postRoutes.route('/downvote/:id').post(function (req, res) {
                             //Post found and user verified
                             var voters = post.voters;
                             var voter = voters.get(account.user);
-                            
+
                             console.log(voter);
 
-                            if (voter=='downvote') {
+                            if (voter == 'downvote') {
                                 post.votes += 1;
-                                post.voters.set(account.user,'neutral');
+                                post.voters.set(account.user, 'neutral');
                                 res.status(200).send("undownvote!");
                             } else {
                                 post.votes -= 1;

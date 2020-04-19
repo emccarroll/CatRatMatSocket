@@ -44,8 +44,8 @@ export default class CreateLogin extends Component {
               headers: {
                 'Content-Type': 'application/json'},
               body:JSON.stringify({
-                "username": "jacobTesterman2",
-	            "password": "securepassword?"
+                "username": this.state.username,//"jacobTesterman2",
+	            "password": this.state.password//"securepassword?"
               }),
                 
               
@@ -53,6 +53,9 @@ export default class CreateLogin extends Component {
           )
             .then((res) => res.text())
             .then((result) => {
+                if(result==="login correct"){
+                    sessionStorage.setItem("username",this.state.username);
+                }
                 console.log(result);
                 this.setState(state => ({
                     goToHomePage:true

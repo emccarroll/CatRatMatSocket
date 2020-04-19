@@ -8,21 +8,27 @@ import { faHeart as faHeartSolid, faComment as faCommentSolid } from '@fortaweso
 import {Redirect, useParams} from 'react-router-dom';
 
 
+
 import { s } from '@fortawesome/free-solid-svg-icons'
 
-export default class PostView extends Component {
+export default class PostPage extends Component {
 
     constructor(props) {
         super(props);
         
         this.state = {isLiked: false, isCommented: false,
         
-            postData: "",
+            postData: [],
                 comments: [],
                 goBackToHomePage:false,
-                commentInputText: ''
+                commentInputText: '',
+                prevDataFromParent: null,
+                goToLogin: false
+                
                 
         };
+
+
     
         // This binding is necessary to make `this` work in the callback
         this.handleLike = this.handleLike.bind(this);
@@ -32,12 +38,60 @@ export default class PostView extends Component {
       }
 
       componentDidMount() {
+        console.log("on the Post page")
+        
         const { postId } = this.props.match.params
         this.setState(state => ({
             thepostId: postId
           }));
         this.getPost();
       }
+      componentWillUnmount(){
+        console.log("leaving the Post page")
+            
+        }
+
+        static getDerivedStateFromProps(props, state) {
+            // Any time the current user changes,
+            // Reset any parts of state that are tied to that user.
+            // In this simple example, that's just the email.
+            if (props.dataFromParent !== state.prevDataFromParent) {
+                if(props.dataFromParent.id===state.thepostId){
+                    if(props.dataFromParent.updateType==="comment"){
+                        const {comments} = state;
+                        comments.push(props.dataFromParent.comment);
+                        console.log("weupdating state");
+                        //state.comments.push(props.dataFromParent.comment);
+                        return {
+                            prevDataFromParent: props.dataFromParent,
+                            comments:comments
+                          };
+                    }
+                    else if(props.dataFromParent.updateType==="vote"){
+                        const {postData} = state;
+                        postData.votes=props.dataFromParent.vote;
+                        postData.voters=props.dataFromParent.voters;
+                        return {
+                            prevDataFromParent: props.dataFromParent,
+                            postData: postData
+                          };
+                    }
+                }
+             
+            }
+            return null;
+          }
+
+
+      /*componentDidUpdate(prevProps){
+        if (this.props.dataFromParent !== prevProps.dataFromParent) {
+            if(this.props.dataFromParent.id===this.state.thepostId){
+                if(this.props.dataFromParent.updateType==="comment"){
+                    this.state.comments.push(this.props.dataFromParent.comment);
+                }
+            }
+          }
+      }*/
 
       
     handleInputChange2(event) {
@@ -50,10 +104,42 @@ export default class PostView extends Component {
         });
       }
 
-    handleLike(){
-        this.setState(state => ({
+      handleLike(){
+        if(!sessionStorage.getItem("username")){
+            this.setState({
+                goToLogin: true
+            })
+        }
+        else{
+            const { postId } = this.props.match.params;
+        fetch(
+            "http://localhost:3000/posts/upvote/"+postId,
+            {
+                credentials: 'include',
+               // mode: "same-origin",
+              method: "post",
+              headers: {
+                'Content-Type': 'application/json'}
+            }
+          )
+            .then((res) => res.text())
+            .then((result) => {
+                console.log("we smashed that like button and  got");
+                console.log(result);
+                
+                
+              
+            })
+            .catch((error) => {alert("Error getting ProfileData", error); alert(error)});
+        
+
+
+         this.setState(state => ({
             isLiked: !state.isLiked
-          }));
+          })); 
+        }
+
+        
     }
 
 getPost(){
@@ -72,7 +158,29 @@ getPost(){
                 postData: result,
                 comments: result.comments
               }));
+
             
+              if(result.voters[sessionStorage.getItem("username")]==="upvote"){
+            
+                
+                this.setState(state => ({
+                    isLiked:true
+                  }));
+            
+                }
+                else{
+            
+                    this.setState(state => ({
+                        isLiked:false
+                      }));
+           
+                }
+
+
+
+              var arr =[postId];
+              var x= JSON.stringify(arr);
+              this.props.socketHandler(x);
           
         })
         .catch((error) => {alert("Error getting PostData", error); alert(error)});
@@ -88,32 +196,40 @@ handleComment(){
     }
 
     OnPostCommentButtonClicked(){
-        const { postId } = this.props.match.params
-        fetch(
-            "http://localhost:3000/posts/comment/"+postId,
-            {
-                credentials: 'include',
-               // mode: "same-origin",
-              method: "post",
-              headers: {
-                'Content-Type': 'application/json'},
-                
-              body: JSON.stringify({
-                
-                "text": this.state.commentInputText
-              }),
-            }
-          )
-            .then((res) => res.text())
-            .then((result) => {
-                console.log(result);
-                this.setState(state => ({
-                    isCommented: !state.isCommented
-                  }));
-                
-              
+        if(!sessionStorage.getItem("username")){
+            this.setState({
+                goToLogin: true
             })
-            .catch((error) => {alert("Error getting ProfileData", error); alert(error)});
+        }
+        else{
+            const { postId } = this.props.match.params
+            fetch(
+                "http://localhost:3000/posts/comment/"+postId,
+                {
+                    credentials: 'include',
+                   // mode: "same-origin",
+                  method: "post",
+                  headers: {
+                    'Content-Type': 'application/json'},
+                    
+                  body: JSON.stringify({
+                    
+                    "text": this.state.commentInputText
+                  }),
+                }
+              )
+                .then((res) => res.text())
+                .then((result) => {
+                    console.log(result);
+                    /* this.setState(state => ({
+                        isCommented: !state.isCommented
+                      })); */
+                    
+                  
+                })
+                .catch((error) => {alert("Error getting ProfileData", error); alert(error)});
+        }
+        
         }
 
 
@@ -126,6 +242,13 @@ handleComment(){
             return(
                 <Redirect push
                     to={"/"}
+                    />
+                )
+        }
+        else if(this.state.goToLogin===true){
+            return(
+                <Redirect push
+                    to={"/login"}
                     />
                 )
         }
@@ -168,7 +291,7 @@ handleComment(){
                     <FontAwesomeIcon className="like" icon={this.state.isLiked? faHeartSolid : faHeart} size="2x"  onClick={(e)=> this.handleLike(e)}/>
                     </div>
                     <div className="col-1">
-                    <FontAwesomeIcon className="like" icon={this.state.isCommented? faCommentSolid : faComment} size="2x" onClick={(e)=> this.handleComment(e)}/>
+                    <FontAwesomeIcon className="like" icon={faCommentSolid/* this.state.isCommented? faCommentSolid : faComment */} size="2x" onClick={(e)=> this.handleComment(e)}/>
                     </div>
                 </div>
                 <div className="row">
@@ -197,7 +320,7 @@ handleComment(){
                             
                             <ul className="list-group list-group-flush">
                                     {this.state.comments.map(item => (
-                                     <li className="list-group-item text-wrap text-break" key={item}>{item.user}: {item.text}</li>
+                                     <li className="list-group-item text-wrap text-break" key={item._id}>{item.user}: {item.text}</li>
                                     ))}
                                 
                                
