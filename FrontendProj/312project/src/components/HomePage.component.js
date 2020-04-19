@@ -23,6 +23,7 @@ export default class HomePage extends Component {
       }
       componentDidMount() {
         console.log("on the home page")
+        
         //this.props.socketHandler("HomePage");
         this.getPosts();
       }
@@ -37,9 +38,9 @@ export default class HomePage extends Component {
             // Reset any parts of state that are tied to that user.
             // In this simple example, that's just the email.
             if (props.dataFromParent !== state.prevDataFromParent) {
-                if(state.postIds.includes(props.dataFromParent.id)){
+                if(/* state.postIds.includes(props.dataFromParent.id) */ true){
                     if(props.dataFromParent.updateType==="vote"){
-                        
+                        console.log("Yo we not updating the posts yea");
                         const {posts} =state;
                         
                         const i=posts.findIndex((x)=> x._id===props.dataFromParent.id);
@@ -49,6 +50,26 @@ export default class HomePage extends Component {
                         postToUpdate.votes=props.dataFromParent.vote;
                         postToUpdate.voters=props.dataFromParent.voters;
                         posts[i]=postToUpdate;
+
+                        
+
+                        /* const {comments} = state;
+                        comments.push(props.dataFromParent.vote);
+                        console.log("weupdating state"); */
+                        //state.comments.push(props.dataFromParent.comment);
+                        return {
+                            prevDataFromParent: props.dataFromParent,
+                            posts:posts
+                          };
+                    }
+                    else if(props.dataFromParent.updateType==="post"){
+                        console.log("Yo we updating the posts yea");
+                        const {posts} =state;
+                        
+                        posts.push(props.dataFromParent.post);
+                        
+
+                        
 
                         
 
@@ -88,11 +109,11 @@ export default class HomePage extends Component {
                     posts: result,
                     postIds:arr
                   }));
-                  
-                  console.log("the array is");
+                  this.props.socketHandler("homepage");
+                  /* console.log("the array is");
                   console.log(arr);
-                var x= JSON.stringify(arr);
-                  this.props.socketHandler(x);
+                var x= JSON.stringify(arr); */
+                  
               
             })
             .catch((error) => {alert("Error getting Posts", error); alert(error)});

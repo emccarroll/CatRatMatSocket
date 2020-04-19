@@ -51,7 +51,14 @@ this.onRouteChanged();
 }
 
 sendSocketIO(s) {
-  socket.emit('listenTo', s);
+  if(s==="homepage"){
+    console.log("yo we sending without the listento")
+    socket.emit(s);
+  }
+  else{
+    socket.emit('listenTo', s);
+  }
+  
 }
 
 
