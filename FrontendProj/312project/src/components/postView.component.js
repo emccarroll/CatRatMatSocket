@@ -62,9 +62,9 @@ export default class PostView extends Component {
             
     
     
-             this.setState(state => ({
+             /* this.setState(state => ({
                 isLiked: !state.isLiked
-              })); 
+              }));  */
 
 
         }
@@ -154,7 +154,7 @@ export default class PostView extends Component {
                 </div>
                 <div className="row bottomHalf">
                     <div className="col-1">
-                    <FontAwesomeIcon className="like" icon={this.state.isLiked? faHeartSolid : faHeart} size="2x"  onClick={(e)=> this.handleLike(e)}/>
+                    <FontAwesomeIcon className="like" icon={this.props.postData.voters? faHeartSolid : faHeart} size="2x"  onClick={(e)=> this.handleLike(e)}/>
                     </div>
                     <div className="col-1">
                     <FontAwesomeIcon className="like" icon={this.state.isCommented? faCommentSolid : faComment} size="2x" onClick={(e)=> this.handleComment(e)}/>

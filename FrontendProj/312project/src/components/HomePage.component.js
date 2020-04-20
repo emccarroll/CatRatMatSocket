@@ -37,11 +37,21 @@ export default class HomePage extends Component {
             // Any time the current user changes,
             // Reset any parts of state that are tied to that user.
             // In this simple example, that's just the email.
+            const {posts} =state;
+            console.log("Yo boii this is it");
+            console.log(posts);
+            if(posts.length===0){
+                console.log("Yo boii this is it part 2 ");
+                return{
+                    prevDataFromParent: props.dataFromParent
+                }
+            }
             if (props.dataFromParent !== state.prevDataFromParent) {
                 if(/* state.postIds.includes(props.dataFromParent.id) */ true){
                     if(props.dataFromParent.updateType==="vote"){
                         console.log("Yo we not updating the posts yea");
                         const {posts} =state;
+                        console.log(posts);
                         if(posts!==[]){
                             const i=posts.findIndex((x)=> x._id===props.dataFromParent.id);
                             console.log("the value of i is: "+i);
