@@ -55,11 +55,13 @@ export default class CreateLogin extends Component {
             .then((result) => {
                 if(result==="login correct"){
                     sessionStorage.setItem("username",this.state.username);
+                    this.props.SuccesfullLoginCallback();
+                    this.setState(state => ({
+                        goToHomePage:true
+                      }));
                 }
                 console.log(result);
-                this.setState(state => ({
-                    goToHomePage:true
-                  }));
+                
                 
               
             })

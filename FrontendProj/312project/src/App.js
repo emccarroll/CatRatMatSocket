@@ -31,6 +31,8 @@ class App extends Component {
     // This binding is necessary to make `this` work in the callback
     this.sendSocketIO = this.sendSocketIO.bind(this);
     this.apples= this.apples.bind(this);
+    this.SuccesfullLoginCallback= this.SuccesfullLoginCallback.bind(this);
+    
     socket.on('update', this.apples)
   }
 
@@ -59,6 +61,12 @@ sendSocketIO(s) {
     socket.emit('listenTo', s);
   }
   
+}
+
+SuccesfullLoginCallback(){
+  this.setState({
+    successfullLogin:true
+  })
 }
 
 
@@ -95,6 +103,7 @@ onRouteChanged() {
                 <li className="navbar-item">
                   <Link to="/login" className="nav-link">Login</Link>
                 </li>
+                {this.state.successfullLogin ? <div className="navbar-item nav-link">You're Logged in</div> : <div></div>}
               </ul>
             </div>
           </nav>
@@ -110,7 +119,7 @@ onRouteChanged() {
                 <CreatePost socketHandler={this.socketUpdateHandler} ></CreatePost>
             </Route> 
           <Route path="/login">
-                <CreateLogin socketHandler={this.socketUpdateHandler} ></CreateLogin>
+                <CreateLogin socketHandler={this.socketUpdateHandler} SuccesfullLoginCallback={this.SuccesfullLoginCallback} ></CreateLogin>
             </Route> 
           <Route path="/createAccount" >
                 <CreateAccount socketHandler={this.socketUpdateHandler} ></CreateAccount>
