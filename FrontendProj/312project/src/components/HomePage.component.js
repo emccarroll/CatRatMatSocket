@@ -42,25 +42,30 @@ export default class HomePage extends Component {
                     if(props.dataFromParent.updateType==="vote"){
                         console.log("Yo we not updating the posts yea");
                         const {posts} =state;
+                        if(posts!==[]){
+                            const i=posts.findIndex((x)=> x._id===props.dataFromParent.id);
+                            console.log("the value of i is: "+i);
+                            const postToUpdate= posts[i];
+    
+                            postToUpdate.votes=props.dataFromParent.vote;
+                            postToUpdate.voters=props.dataFromParent.voters;
+                            posts[i]=postToUpdate;
+    
+                            
+    
+                            /* const {comments} = state;
+                            comments.push(props.dataFromParent.vote);
+                            console.log("weupdating state"); */
+                            //state.comments.push(props.dataFromParent.comment);
+                            return {
+                                prevDataFromParent: props.dataFromParent,
+                                posts:posts
+                              };
+                        }
+                        else{
+                           return{};
+                        }
                         
-                        const i=posts.findIndex((x)=> x._id===props.dataFromParent.id);
-                        console.log("the value of i is: "+i);
-                        const postToUpdate= posts[i];
-
-                        postToUpdate.votes=props.dataFromParent.vote;
-                        postToUpdate.voters=props.dataFromParent.voters;
-                        posts[i]=postToUpdate;
-
-                        
-
-                        /* const {comments} = state;
-                        comments.push(props.dataFromParent.vote);
-                        console.log("weupdating state"); */
-                        //state.comments.push(props.dataFromParent.comment);
-                        return {
-                            prevDataFromParent: props.dataFromParent,
-                            posts:posts
-                          };
                     }
                     else if(props.dataFromParent.updateType==="post"){
                         console.log("Yo we updating the posts yea");
