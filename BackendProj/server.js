@@ -438,7 +438,7 @@ postRoutes.route('/upvote/:id').post(function (req, res) {
                                 res.status(200).send("upvote successful");
                             }
                             post.save();
-                            var responseObj = {id: req.params.id, updateType: "vote", vote: post.votes, voters: voters};
+                            var responseObj = {id: req.params.id, updateType: "vote", vote: post.votes, voters: post.voters};
                             io.to(req.params.id).emit('update', responseObj);
                             io.to('homepage').emit('update', responseObj);
                             io.to(account.user).emit('update', responseObj);
