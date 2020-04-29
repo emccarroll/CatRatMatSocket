@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PostView from "./postView.component";
 import "./homePage.css";
 import {Redirect} from 'react-router-dom';
+import * as Constants from "../Constants.js";
 
 export default class HomePage extends Component {
 
@@ -105,7 +106,7 @@ export default class HomePage extends Component {
       getPosts(){
         
         fetch(
-            "http://localhost:3000/posts",
+            Constants.config.url["API_URL"]+"/posts",
             {
               method: "get"
               

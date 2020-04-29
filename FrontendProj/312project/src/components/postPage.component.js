@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faHeart,faComment} from '@fortawesome/fontawesome-free-regular'
 import { faHeart as faHeartSolid, faComment as faCommentSolid } from '@fortawesome/free-solid-svg-icons'
 import {Redirect, useParams} from 'react-router-dom';
+import * as Constants from "../Constants.js";
 
 
 
@@ -113,7 +114,7 @@ export default class PostPage extends Component {
         else{
             const { postId } = this.props.match.params;
         fetch(
-            "http://localhost:3000/posts/upvote/"+postId,
+            Constants.config.url["API_URL"]+"/posts/upvote/"+postId,
             {
                 credentials: 'include',
                // mode: "same-origin",
@@ -145,7 +146,7 @@ export default class PostPage extends Component {
 getPost(){
     const { postId } = this.props.match.params
     fetch(
-        "http://localhost:3000/posts/"+postId,
+        Constants.config.url["API_URL"]+"/posts/"+postId,
         {
           method: "get"
           
@@ -204,7 +205,7 @@ handleComment(){
         else{
             const { postId } = this.props.match.params
             fetch(
-                "http://localhost:3000/posts/comment/"+postId,
+                Constants.config.url["API_URL"]+"/posts/comment/"+postId,
                 {
                     credentials: 'include',
                    // mode: "same-origin",
@@ -256,9 +257,9 @@ handleComment(){
         //////Assigning default image to jesseerror404 if not found/////////
         var image;
         if(this.state.postData.src != undefined){
-            this.image = "http://localhost:3000/"+this.state.postData.src
+            this.image = Constants.config.url["API_URL"]+"/"+this.state.postData.src
         }else{
-            this.image = "http://localhost:3000/images/error404.jpg"
+            this.image = Constants.config.url["API_URL"]+"/images/error404.jpg"
         }
         ////////////////////////////////////////////////////////////        
 

@@ -15,8 +15,9 @@ import ProfilePage from "./components/ProfilePage.component";
 import CreateAccount from "./components/create-account.component";
 import PostPage from "./components/postPage.component";
 import logo from "./logo.svg";
+import * as Constants from "./Constants.js"
 
-const socket = openSocket('http://localhost:3000',{transports: ['websocket']});
+const socket = openSocket(Constants.config.url["API_URL"]+'/',{transports: ['websocket']});
 
 class App extends Component {
 
@@ -27,7 +28,7 @@ class App extends Component {
     this.state = {
       data:""
     };
-    
+
     // This binding is necessary to make `this` work in the callback
     this.sendSocketIO = this.sendSocketIO.bind(this);
     this.apples= this.apples.bind(this);

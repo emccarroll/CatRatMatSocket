@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import * as Constants from "../Constants.js";
 
 export default class CreatePost extends Component {
 
@@ -55,7 +56,7 @@ export default class CreatePost extends Component {
             }
         };
 
-        fetch('http://localhost:3000/posts/add', {
+        fetch(Constants.config.url["API_URL"]+'/posts/add', {
             credentials: 'include',
             method: 'POST',
             body: fd

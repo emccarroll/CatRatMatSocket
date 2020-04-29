@@ -10,11 +10,8 @@ const path = require('path');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 
+app.use(express.static(path.join(__dirname, 'build')));
 
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
 
 
 var storage = multer.diskStorage({
@@ -215,6 +212,11 @@ connection.once('open', function () {
 })
 
 app.use('/images', express.static('images'))
+
+
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 postRoutes.route('/').get(function (req, res) {
     Post.find(function (err, posts) {
