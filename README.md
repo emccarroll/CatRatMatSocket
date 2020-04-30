@@ -4,6 +4,7 @@ This is a CSE312 Social Media Site Group Project. THis social media site will be
 **ContemporaryArtwork = Jacob Santoni**
 
 ### [Our frontend video][frontend-vid]
+### [Our Phase 2 Video][phase2vid]
 
 
 # Note: Our docker-compose file is located in the root directory. 
@@ -14,3 +15,4 @@ docker-compose up --detach
 ```
 
 [frontend-vid]: https://youtu.be/1UMlBIyqAlE
+[phase2vid]: https://youtu.be/eFdpj6JQAxM

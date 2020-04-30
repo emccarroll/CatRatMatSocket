@@ -7,6 +7,7 @@ import { faHeart as faHeartSolid, faComment as faCommentSolid } from '@fortaweso
 
 import { s } from '@fortawesome/free-solid-svg-icons'
 import {Redirect} from 'react-router-dom';
+import * as Constants from "../Constants.js";
 
 export default class PostView extends Component {
 
@@ -41,7 +42,7 @@ export default class PostView extends Component {
         else{
             const { postId } = this.props;
             fetch(
-                "http://localhost:3000/posts/upvote/"+postId,
+                Constants.config.url["API_URL"]+"/posts/upvote/"+postId,
                 {
                     credentials: 'include',
                    // mode: "same-origin",
@@ -62,9 +63,9 @@ export default class PostView extends Component {
             
     
     
-             this.setState(state => ({
+              this.setState(state => ({
                 isLiked: !state.isLiked
-              })); 
+              }));  
 
 
         }
@@ -125,9 +126,9 @@ export default class PostView extends Component {
         //////Assigning default image to jesseerror404 if not found/////////
         var image;
         if(this.props.postData.src != undefined){
-            this.image = "http://localhost:3000/"+this.props.postData.src
+            this.image = Constants.config.url["API_URL"]+"/"+this.props.postData.src
         }else{
-            this.image = "http://localhost:3000/images/error404.jpg"
+            this.image = Constants.config.url["API_URL"]+"/images/error404.jpg"
         }
         ////////////////////////////////////////////////////////////
 

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PostView from "./postView.component";
 import "./homePage.css";
 import {Redirect} from 'react-router-dom';
+import * as Constants from "../Constants.js";
 
 export default class HomePage extends Component {
 
@@ -23,6 +24,7 @@ export default class HomePage extends Component {
       }
       componentDidMount() {
         console.log("on the home page")
+        
         //this.props.socketHandler("HomePage");
         this.getPosts();
       }
@@ -36,19 +38,49 @@ export default class HomePage extends Component {
             // Any time the current user changes,
             // Reset any parts of state that are tied to that user.
             // In this simple example, that's just the email.
+            const {posts} =state;
+            console.log("Yo boii this is it");
+            console.log(posts);
+            
             if (props.dataFromParent !== state.prevDataFromParent) {
-                if(state.postIds.includes(props.dataFromParent.id)){
+                if(/* state.postIds.includes(props.dataFromParent.id) */ true){
                     if(props.dataFromParent.updateType==="vote"){
+                        console.log("Yo we not updating the posts yea");
+                        const {posts} =state;
+                        console.log(posts);
+                        if(posts.length!==0){
+                            const i=posts.findIndex((x)=> x._id===props.dataFromParent.id);
+                            console.log("the value of i is: "+i);
+                            const postToUpdate= posts[i];
+    
+                            postToUpdate.votes=props.dataFromParent.vote;
+                            postToUpdate.voters=props.dataFromParent.voters;
+                            posts[i]=postToUpdate;
+    
+                            
+    
+                            /* const {comments} = state;
+                            comments.push(props.dataFromParent.vote);
+                            console.log("weupdating state"); */
+                            //state.comments.push(props.dataFromParent.comment);
+                            return {
+                                prevDataFromParent: props.dataFromParent,
+                                posts:posts
+                              };
+                        }
+                        else{
+                           return{};
+                        }
                         
+                    }
+                    else if(props.dataFromParent.updateType==="post"){
+                        console.log("Yo we updating the posts yea");
                         const {posts} =state;
                         
-                        const i=posts.findIndex((x)=> x._id===props.dataFromParent.id);
-                        console.log("the value of i is: "+i);
-                        const postToUpdate= posts[i];
+                        posts.push(props.dataFromParent.post);
+                        
 
-                        postToUpdate.votes=props.dataFromParent.vote;
-                        postToUpdate.voters=props.dataFromParent.voters;
-                        posts[i]=postToUpdate;
+                        
 
                         
 
@@ -74,7 +106,7 @@ export default class HomePage extends Component {
       getPosts(){
         
         fetch(
-            "http://localhost:3000/posts",
+            Constants.config.url["API_URL"]+"/posts",
             {
               method: "get"
               
@@ -88,11 +120,11 @@ export default class HomePage extends Component {
                     posts: result,
                     postIds:arr
                   }));
-                  
-                  console.log("the array is");
+                  this.props.socketHandler("homepage");
+                  /* console.log("the array is");
                   console.log(arr);
-                var x= JSON.stringify(arr);
-                  this.props.socketHandler(x);
+                var x= JSON.stringify(arr); */
+                  
               
             })
             .catch((error) => {alert("Error getting Posts", error); alert(error)});

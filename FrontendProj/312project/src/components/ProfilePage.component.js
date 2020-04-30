@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import PostView from "./postView.component";
+import * as Constants from "../Constants.js";
 
 export default class ProfilePage extends Component {
 
@@ -41,7 +42,7 @@ export default class ProfilePage extends Component {
       getPosts(){
         
         fetch(
-            "http://localhost:3000/posts",
+          Constants.config.url["API_URL"]+"/posts",
             {
               method: "get"
               

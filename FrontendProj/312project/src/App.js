@@ -15,8 +15,9 @@ import ProfilePage from "./components/ProfilePage.component";
 import CreateAccount from "./components/create-account.component";
 import PostPage from "./components/postPage.component";
 import logo from "./logo.svg";
+import * as Constants from "./Constants.js"
 
-const socket = openSocket('http://localhost:3000',{transports: ['websocket']});
+const socket = openSocket(Constants.config.url["API_URL"]+'/',{transports: ['websocket']});
 
 class App extends Component {
 
@@ -27,10 +28,12 @@ class App extends Component {
     this.state = {
       data:""
     };
-    
+
     // This binding is necessary to make `this` work in the callback
     this.sendSocketIO = this.sendSocketIO.bind(this);
     this.apples= this.apples.bind(this);
+    this.SuccesfullLoginCallback= this.SuccesfullLoginCallback.bind(this);
+    
     socket.on('update', this.apples)
   }
 
@@ -51,7 +54,20 @@ this.onRouteChanged();
 }
 
 sendSocketIO(s) {
-  socket.emit('listenTo', s);
+  if(s==="homepage"){
+    console.log("yo we sending without the listento")
+    socket.emit(s);
+  }
+  else{
+    socket.emit('listenTo', s);
+  }
+  
+}
+
+SuccesfullLoginCallback(){
+  this.setState({
+    successfullLogin:true
+  })
 }
 
 
@@ -88,6 +104,7 @@ onRouteChanged() {
                 <li className="navbar-item">
                   <Link to="/login" className="nav-link">Login</Link>
                 </li>
+                {this.state.successfullLogin ? <div className="navbar-item nav-link">You're Logged in</div> : <div></div>}
               </ul>
             </div>
           </nav>
@@ -103,7 +120,7 @@ onRouteChanged() {
                 <CreatePost socketHandler={this.socketUpdateHandler} ></CreatePost>
             </Route> 
           <Route path="/login">
-                <CreateLogin socketHandler={this.socketUpdateHandler} ></CreateLogin>
+                <CreateLogin socketHandler={this.socketUpdateHandler} SuccesfullLoginCallback={this.SuccesfullLoginCallback} ></CreateLogin>
             </Route> 
           <Route path="/createAccount" >
                 <CreateAccount socketHandler={this.socketUpdateHandler} ></CreateAccount>

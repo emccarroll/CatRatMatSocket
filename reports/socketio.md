@@ -188,9 +188,35 @@ Socket.io is a critical tool in implementing a real-time web application. Socket
 
     As stated in the offical documentation, the role of engine.io is ```the implementation of transport-based cross-browser/cross-device bi-directional communication layer for Socket.IO.``` It also contains its own packet encoder and decoder located [here][engineio]
 
+## License
+
+Socket.io has an [MIT][license] license:
+
+ >Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+>
+>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+>
+>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ 
+Using the MIT license means that there are very limited restrictions in reusing the software.  The only requirement associated with an MIT license is that you include the MIT copyright notice with any copies of the software.  You may use the software for commercial use and may sell the software.
+
+
 [image]:https://socket.io/images/dependencies.jpg
 [intro]:https://github.com/socketio/socket.io/blob/df05b73bb93d7c34c758504001f869cb156703d5/lib/index.js#L7
 [http]:https://github.com/expressjs/express/blob/c0136d8b48dd3526c58b2ad8666fb4b12b55116c/lib/router/route.js#L98
 [client-http]:https://github.com/socketio/socket.io-client/blob/8372591652260f88987c467b94573a144ee4db63/test/support/server.js#L145
 [encode]:https://github.com/socketio/socket.io-parser/blob/652402a8568c2138da3c27c96756b32efca6c4bf/index.js#L139
 [engineio]:https://github.com/socketio/engine.io-parser/blob/master/lib/index.js
+[license]:https://github.com/socketio/socket.io/blob/master/LICENSE

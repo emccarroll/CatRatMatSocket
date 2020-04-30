@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import "./loginPage.css"
+import * as Constants from "../Constants.js"
 
 export default class CreateAccount extends Component {
 
@@ -49,7 +50,7 @@ export default class CreateAccount extends Component {
         }
         else{
             console.log(JSON.stringify(this.state.raw));
-            fetch('http://localhost:3000/users/createAccount', {
+            fetch(Constants.config.url["API_URL"]+'/users/createAccount', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json, text/plain, */*',

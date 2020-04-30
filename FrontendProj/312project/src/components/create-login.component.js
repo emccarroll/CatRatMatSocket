@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import "./loginPage.css"
 import { Link } from 'react-router-dom';
 import {Redirect, useParams} from 'react-router-dom';
+import * as Constants from "../Constants.js";
 
 export default class CreateLogin extends Component {
 
@@ -36,7 +37,7 @@ export default class CreateLogin extends Component {
         console.log("chicken");
 
         fetch(
-            "http://localhost:3000/users/login",
+            Constants.config.url["API_URL"]+"/users/login",
             {
               credentials: 'include',
                 
@@ -55,11 +56,13 @@ export default class CreateLogin extends Component {
             .then((result) => {
                 if(result==="login correct"){
                     sessionStorage.setItem("username",this.state.username);
+                    this.props.SuccesfullLoginCallback();
+                    this.setState(state => ({
+                        goToHomePage:true
+                      }));
                 }
                 console.log(result);
-                this.setState(state => ({
-                    goToHomePage:true
-                  }));
+                
                 
               
             })
