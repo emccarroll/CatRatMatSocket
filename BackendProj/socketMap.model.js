@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let socketMap = new Schema({
-    type: Map,
-        of: [String]
+    user: String,
+    socketID: String
 
 });
 
