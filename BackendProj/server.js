@@ -53,11 +53,19 @@ const dm = io.of('/chat').on('connection', (socket) => {
                 bcrypt.compare(msg.authToken.trim(), account.authSession, function (err, result) {
                     
                     if (result) {
-                        socket.emit('authenticate','login successful! ' + socket.id);
-                        var socketMap = new SocketMap();
-                        socketMap.user = account.user;
-                        socketMap.socketID = socket.id;
-                        socketMap.save();
+                        SocketMap.find({user: msg.username}, function(err,data) {
+                            if (data.length==0){
+                                var sM = new SocketMap();
+                                sM.user = account.user;
+                                sM.socketID = socket.id;
+                                sM.save();
+                            }else{
+                                data[0].socketID = socket.id;
+                                data[0].save();
+                            }
+
+                        });
+                        socket.emit('authenticate','login successful! ');
 
                     } else {
                         console.log(result);
@@ -263,14 +271,88 @@ postRoutes.route('/').get(function (req, res) {
     });
 });
 
-chatRoutes.route('/message/:user').post(function (req, res) {
+chatRoutes.route('/message').post(function (req, res) {
     Account.find({ user: req.cookies['username'] }, function (err, data) {
         if (data.length == 0) {
             res.send('invalid authentication token!');
         } else {
-            var account = data[0];
+            var account = data[0];  
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
                 if (result) {
+                    Account.find({ user: req.body.username }, function (err, data) {
+                        
+                        if (data.length == 0) {
+                            res.send({status:'error',message:'specified user does not exist'});
+                        } else {
+                            var specificedUser = data[0];
+                            specificedUser.messages.push({user:req.cookies['username'],message:req.body.message,readStatus:false});
+                            specificedUser.save();
+                            var lastMessage = specificedUser.messages[specificedUser.messages.length-1];
+                            //TODO: Handle Websocket stuff here
+                            SocketMap.find({user:req.body.username}, function(err,data){
+                                if (data.length == 0) {
+                                    console.log('specified user is not logged in?');
+                                } else {
+                                    var socketID = data[0].socketID;
+                                    console.log(socketID);
+                                    io.of('/chat').to(socketID).emit('chatUpdate', lastMessage);
+                                }
+                            });
+                            
+                            //
+                            
+                            res.send({Status:'success'});
+                            console.log(specificedUser.messages);
+                        }
+                    });
+                    
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+    
+});
+
+chatRoutes.route('/markRead/:id').post(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];  
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    var messages = data[0].messages;
+                    for (var i = 0; i<messages.length; i++){
+                        if(messages[i]._id==req.params.id){
+                            messages[i].readStatus = true;
+                            data[0].messages = messages;
+                            data[0].save();
+                            res.send({Status:'success'});
+                            return;
+                        }
+                    }
+                    res.send({Status:'error'});
+                    
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+    
+});
+
+chatRoutes.route('/getMessages').get(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];  
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    res.send({Status:'success',messages:data[0].messages});
                     
                 } else {
                     res.send('invalid authentication token!');
