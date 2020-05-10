@@ -96,7 +96,7 @@ onRouteChanged() {
                   <Link to="/" className="nav-link">Home</Link>
                 </li>
                 <li className="navbar-item">
-                  <Link to="/profile" className="nav-link">Profile</Link>
+                  <Link to={"/profile/"+sessionStorage.getItem("username")} className="nav-link">Profile</Link>
                 </li>
                 <li className="navbar-item">
                   <Link to="/create" className="nav-link">Create Post</Link>
@@ -113,8 +113,10 @@ onRouteChanged() {
           <Route path="/" exact >
                 <HomePage socketHandler={this.socketUpdateHandler}  dataFromParent={this.state.data} ></HomePage>
             </Route> 
-          <Route path="/Profile" exact  >
-                <ProfilePage socketHandler={this.socketUpdateHandler} ></ProfilePage>
+          <Route path="/Profile/:profileUsername" exact  render={
+              (props) => <ProfilePage  {...props} socketHandler={this.socketUpdateHandler} dataFromParent={this.state.data} ></ProfilePage>
+          }
+                 >
             </Route> 
           <Route path="/create" >
                 <CreatePost socketHandler={this.socketUpdateHandler} ></CreatePost>
