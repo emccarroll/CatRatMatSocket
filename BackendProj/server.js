@@ -30,7 +30,7 @@ var upload = multer({
 
 let Post = require('./post.model');
 let Account = require('./account.model');
-let socketMap = require('./socketMap.model');
+let SocketMap = require('./socketMap.model');
 
 const PORT = 3000;
 const mongoIP = "mongo";
@@ -38,8 +38,37 @@ const mongoPort = 27017;
 const postRoutes = express.Router();
 const userRoutes = express.Router();
 const dataRoutes = express.Router();
+const chatRoutes = express.Router();
 
+const dm = io.of('/chat').on('connection', (socket) => {
+    socket.on('authenticate', (msg) => {
+        console.log(msg.username);
+        Account.find({ user: msg.username }, function (err, data) {
+            if (data.length == 0) {
+                socket.emit('authenticate','account doesn\'t exist!');
+            } else {
+                var account = data[0];
+                console.log(account.user);
+                console.log(msg.authToken+ " "+ account.authSession);
+                bcrypt.compare(msg.authToken.trim(), account.authSession, function (err, result) {
+                    
+                    if (result) {
+                        socket.emit('authenticate','login successful! ' + socket.id);
+                        var socketMap = new SocketMap();
+                        socketMap.user = account.user;
+                        socketMap.socketID = socket.id;
+                        socketMap.save();
 
+                    } else {
+                        console.log(result);
+                        socket.emit('authenticate','invalid authentication token');
+                    }
+                });
+            }
+        });
+    });
+    
+});
 
  io.on('connection', (socket) => {
     console.log('a user connected');
@@ -96,16 +125,18 @@ const dataRoutes = express.Router();
 
     socket.on('follow', (msg) => {
         var postArr = JSON.parse(msg);
+        
 
         //Verify these are legitimate users
 
 
         var promise = new Promise(function (resolve, reject) {
-            console.log()
+            
             for (const userID of postArr) {
                 var loops = 0;
                 Account.find({ user: userID }, function (err, post) {
-                    if (!post) {
+                    console.log(post);
+                    if (post.length==0) {
                         console.log('incorrect!');
                         socket.emit({ status: 'error: username not found' });
                         reject();
@@ -166,6 +197,7 @@ app.use(cookieParser('434secretfortestingpurposes12'));
 app.use('/posts', cors(corsOptions), upload.single('file'), postRoutes);
 app.use('/users', cors(corsOptions), userRoutes);
 app.use('/images', cors(corsOptions), dataRoutes);
+app.use('/chat', cors(corsOptions), chatRoutes);
 
 const saltRounds = 10;
 
@@ -230,6 +262,44 @@ postRoutes.route('/').get(function (req, res) {
         }
     });
 });
+
+chatRoutes.route('/message/:user').post(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+    
+});
+
+userRoutes.route('/whoamI').get(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send({status:'error'});
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    res.send({status:'success',username:account.authSession});
+                } else {
+                    res.send({status:'error'});
+                }
+            });
+        }
+    });
+    
+});
+
+
 
 postRoutes.route('/:id').get(function (req, res) {
 
@@ -342,8 +412,8 @@ userRoutes.route('/login').post(function (req, res) {
                             accounts[0].authSession = hash;
                             accounts[0].save();
                         });
-                        res.cookie('authToken', token, { maxAge: 30 * 60000, httpOnly: true });
-                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, httpOnly: true });
+                        res.cookie('authToken', token, { maxAge: 30 * 60000});
+                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000});
                         res.send('login correct');
                     });
 
