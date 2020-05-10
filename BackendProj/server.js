@@ -451,6 +451,42 @@ userRoutes.route('/login').post(function (req, res) {
 
 
 });
+userRoutes.route('/logout').post(function (req, res) {
+
+    Account.find({ user: req.cookies['username'] }, function (err, accounts) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        if (accounts.length == 0) {
+            res.status(400).json({"status": "error",
+                                   "message": "could not find user "+req.cookies['username'] });
+            console.log('could not find user:' + req.cookies['username']);
+        } else {
+            var account = accounts[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    res.clearCookie('username')
+                    res.clearCookie('authtoken')
+                    res.json({"status": "Success"});
+                } else {
+                    res.status(400).json({"status": "error",
+                                   "message": "invalid authentication token!" });
+                   
+                }
+
+
+
+                
+            });
+        }
+
+    })
+
+
+});
+
 
 
 userRoutes.route('/').get(function (req, res) {
