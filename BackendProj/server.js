@@ -239,9 +239,32 @@ postRoutes.route('/:id').get(function (req, res) {
 postRoutes.route('/user/:user').get(function (req, res) {
 
     let username = req.params.user;
-    Post.find({ user: username }, function (err, posts) {
-        res.json(posts);
-    });
+    Account.find({ user: username }, function (err, data) {
+
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        if (data.length == 0) {
+            var jsonObj={"status":"User Not Found"}
+           res.status(404).json(jsonObj);    
+        }
+        else {
+            //This means the user has to exist
+            Post.find({ user: username }, function (err, posts) {
+                res.json({"status": "Success", "posts":posts});
+            });
+        }
+
+
+
+
+    }
+        
+        
+        )
+    
 });
 
 postRoutes.route('/add').post(function (req, res) {
@@ -355,6 +378,7 @@ userRoutes.route('/login').post(function (req, res) {
 
 
 });
+
 
 userRoutes.route('/').get(function (req, res) {
 
