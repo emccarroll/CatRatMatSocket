@@ -39,7 +39,9 @@ const postRoutes = express.Router();
 const userRoutes = express.Router();
 const dataRoutes = express.Router();
 
-io.on('connection', (socket) => {
+
+
+ io.on('connection', (socket) => {
     console.log('a user connected');
     socket.on('listenTo', (msg) => {
         var postArr = JSON.parse(msg);
@@ -148,6 +150,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
+    
 });
 
 const corsOptions = {
