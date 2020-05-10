@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import PostView from "./postView.component";
+import {Redirect, Link} from 'react-router-dom';
 import * as Constants from "../Constants.js";
 
 export default class ProfilePage extends Component {
@@ -86,6 +87,7 @@ export default class ProfilePage extends Component {
 
 
 
+
     render() {
        // const elems=["Cat1","Cat2","Cat3","Cat4"];
        // const items=[];
@@ -99,6 +101,13 @@ export default class ProfilePage extends Component {
             <div className="Container">User Not Found</div>
           )
         }
+        if(this.state.GoToCommentPage===true){
+          return(
+              <Redirect push
+                  to={"/post/"+this.state.SelectedPost}
+                  />
+              )
+      }
         return (
             <div className="Container">
               
