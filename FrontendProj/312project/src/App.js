@@ -14,6 +14,7 @@ import HomePage from "./components/HomePage.component";
 import ProfilePage from "./components/ProfilePage.component";
 import CreateAccount from "./components/create-account.component";
 import PostPage from "./components/postPage.component";
+import LogoutPage from "./components/logoutPage.component";
 import logo from "./logo.svg";
 import * as Constants from "./Constants.js"
 
@@ -26,13 +27,15 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data:""
+      data:"",
+      isLoggedIn:false
     };
 
     // This binding is necessary to make `this` work in the callback
     this.sendSocketIO = this.sendSocketIO.bind(this);
     this.apples= this.apples.bind(this);
     this.SuccesfullLoginCallback= this.SuccesfullLoginCallback.bind(this);
+    this.SuccesfullLogoutCallback= this.SuccesfullLogoutCallback.bind(this);
     
     socket.on('update', this.apples)
   }
@@ -50,6 +53,7 @@ apples(msg){
 
 componentDidMount(){
 //this.sendSocketIO("waddup");
+this.checkIfLoggedIn();
 this.onRouteChanged();
 }
 
@@ -64,9 +68,44 @@ sendSocketIO(s) {
   
 }
 
+checkIfLoggedIn(){
+  fetch(
+    Constants.config.url["API_URL"]+"/users/whoamI",
+      {
+        method: "get",
+        credentials: 'include'
+      }
+    )
+      .then((res) => res.json())
+      .then((result) => {
+        if(result.status==="Success"){
+          console.log(result);
+          this.setState(state => ({
+              loading:false,
+              isLoggedIn:true
+              
+            }));
+
+            
+          
+        }
+        else{
+          
+        }
+          
+        
+      })
+      .catch((error) => {alert("Error getting Posts", error); alert(error)});
+}
+
 SuccesfullLoginCallback(){
   this.setState({
-    successfullLogin:true
+    isLoggedIn:true
+  })
+}
+SuccesfullLogoutCallback(){
+  this.setState({
+    isLoggedIn:false
   })
 }
 
@@ -102,9 +141,12 @@ onRouteChanged() {
                   <Link to="/create" className="nav-link">Create Post</Link>
                 </li>
                 <li className="navbar-item">
-                  <Link to="/login" className="nav-link">Login</Link>
+                  {this.state.isLoggedIn ? <Link to="/logout" className="nav-link">Logout</Link> :
+                    <Link to="/login" className="nav-link">Login</Link>
+                  }
+                  
                 </li>
-                {this.state.successfullLogin ? <div className="navbar-item nav-link">You're Logged in</div> : <div></div>}
+                {this.state.isLoggedIn ? <div className="navbar-item nav-link">You're Logged in</div> : <div></div>}
               </ul>
             </div>
           </nav>
@@ -123,6 +165,9 @@ onRouteChanged() {
             </Route> 
           <Route path="/login">
                 <CreateLogin socketHandler={this.socketUpdateHandler} SuccesfullLoginCallback={this.SuccesfullLoginCallback} ></CreateLogin>
+            </Route> 
+            <Route path="/logout">
+                <LogoutPage socketHandler={this.socketUpdateHandler} SuccesfullLogoutCallback={this.SuccesfullLogoutCallback} ></LogoutPage>
             </Route> 
           <Route path="/createAccount" >
                 <CreateAccount socketHandler={this.socketUpdateHandler} ></CreateAccount>

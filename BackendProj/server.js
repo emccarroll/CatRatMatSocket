@@ -289,7 +289,7 @@ userRoutes.route('/whoamI').get(function (req, res) {
             var account = data[0];
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
                 if (result) {
-                    res.send({status:'success',username:account.authSession});
+                    res.send({status:'Success',username:account.user});
                 } else {
                     res.send({status:'error'});
                 }
@@ -451,8 +451,12 @@ userRoutes.route('/login').post(function (req, res) {
 
 
 });
-userRoutes.route('/logout').post(function (req, res) {
-
+userRoutes.route('/logout').get(function (req, res) {
+    if(!req.cookies['username']){
+        res.status(400).json({"status": "error",
+        "message": "You're not logged in!"});
+        return;
+    }
     Account.find({ user: req.cookies['username'] }, function (err, accounts) {
         if (err) {
             console.log(err);
