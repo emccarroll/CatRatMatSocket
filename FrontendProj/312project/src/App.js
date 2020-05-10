@@ -5,7 +5,7 @@ import { Chat } from 'react-chat-popup';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import ReactDOM from 'react-dom'
-
+import DirectMessaging from "./components/directmessaging/DirectMessaging"
 import CreatePost from "./components/create-post.component";
 import CreateLogin from "./components/create-login.component";
 
@@ -175,10 +175,12 @@ onRouteChanged() {
           <Route path="/post/:postId" render={(props) => <PostPage {...props} socketHandler={this.socketUpdateHandler}  dataFromParent={this.state.data}></PostPage>} >
                 
             </Route> 
-          
-          <Chat
+          <DirectMessaging>
+
+          </DirectMessaging>
+          {/* <Chat
             handleNewUserMessage={this.handleNewUserMessage}
-          />
+          /> */}
         </div>
       </Router>
     );
