@@ -353,23 +353,23 @@ userRoutes.route('/toggleFollow/:user').post(function (req, res) {
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
                 if (result) {
                     var account = data[0];
-                    if (!account.following){
+                    if (!account.following) {
                         account.following = {};
                         account.save();
                     }
 
                     var isFollowing = account.following.get(req.params.user);
-                    
-                    if (isFollowing!=true){
-                        account.following.set(req.params.user,true);
-                        res.send({status:"success",message:"followed"});
-                    }else{
-                        account.following.set(req.params.user,false);
-                        res.send({status:"success",message:"unfollowed"});
+
+                    if (isFollowing != true) {
+                        account.following.set(req.params.user, true);
+                        res.send({ status: "success", message: "followed" });
+                    } else {
+                        account.following.set(req.params.user, false);
+                        res.send({ status: "success", message: "unfollowed" });
                     }
                     account.save();
-                    
-                    
+
+
                 } else {
                     res.send('invalid authentication token!');
                 }
@@ -388,21 +388,21 @@ userRoutes.route('/amIFollowing/:user').get(function (req, res) {
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
                 if (result) {
                     var account = data[0];
-                    if (!account.following){
+                    if (!account.following) {
                         account.following = {};
                         account.save();
                     }
 
                     var isFollowing = account.following.get(req.params.user);
-                    
-                    if (isFollowing!=true){
-                        res.send({status:"success",following:false});
-                    }else{
-                        res.send({status:"success",following:true});
+
+                    if (isFollowing != true) {
+                        res.send({ status: "success", following: false });
+                    } else {
+                        res.send({ status: "success", following: true });
                     }
-                    
-                    
-                    
+
+
+
                 } else {
                     res.send('invalid authentication token!');
                 }
@@ -420,12 +420,53 @@ userRoutes.route('/fromFollowing').get(function (req, res) {
             var account = data[0];
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
                 if (result) {
-                    if (!account.following){
+                    if (!account.following) {
                         account.following = {};
                         account.save();
                     }
 
-                    
+                    var keys = 0;
+                    for (const username of account.following.keys()) {
+                        keys += 1;
+                    }
+
+                    var anotherPromise = new Promise(function (resolve) {
+                        var retPosts = [];
+                        for (const username of account.following.keys()) {
+                            console.log(account.following.get(username));
+                            if (account.following.get(username) == true) {
+                                var promise = new Promise(function (resolve) {
+                                    Post.find({ user: username }, function (err, data) {
+                                        resolve(data);
+                                    });
+                                });
+
+                                promise.
+                                    then(function (posts) {
+                                        retPosts = retPosts.concat(posts);
+                                        keys -= 1;
+                                        if (keys == 0) {
+                                            resolve(retPosts);
+                                        }
+                                    });
+
+
+                            } else {
+                                keys -= 1;
+                                if (keys == 0) {
+                                    resolve(retPosts);
+                                }
+                            }
+                        }
+
+                    });
+                    anotherPromise.then(function (posts) {
+                        res.send(posts);
+                    });
+
+
+
+
 
                 } else {
                     res.send('invalid authentication token!');
