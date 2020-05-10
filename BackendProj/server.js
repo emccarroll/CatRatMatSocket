@@ -344,6 +344,36 @@ chatRoutes.route('/markRead/:id').post(function (req, res) {
     
 });
 
+chatRoutes.route('/getFromUser/:user').get(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];  
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    var messages = data[0].messages;
+                    var newMessages = [];
+                    for (var i = 0; i<messages.length; i++){
+                        if(messages[i].user==req.params.user){
+                            newMessages.push(messages[i]);
+                        }
+                        if (i==messages.length-1){
+                            res.send({Status:'success',message:newMessages});
+                            return;
+                        }
+                    }
+                    res.send({Status:'error'});
+                    
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+    
+});
+
 chatRoutes.route('/getMessages').get(function (req, res) {
     Account.find({ user: req.cookies['username'] }, function (err, data) {
         if (data.length == 0) {
