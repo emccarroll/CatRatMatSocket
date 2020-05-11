@@ -96,6 +96,7 @@ export default class ProfilePage extends Component {
           .then((result) => {
             if(result.status==="Success"){
               console.log(result);
+              result.posts.reverse();
               this.setState(state => ({
                   loading:false,
                   userNotFound:false,
