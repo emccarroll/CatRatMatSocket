@@ -17,7 +17,8 @@ export default class ListOfConversations extends Component {
                         <ul className="list-group width100 overflow-auto">
                             {this.props.isLoading ? <div>Loading</div> :
                                 Object.keys(this.props.conversations).map(item => (
-                                    <li key={item} onClick={()=>this.props.goToChatView(item)} className="list-group-item pointer text-wrap text-break">{item}</li>
+                                    
+                                <li key={item} onClick={()=>this.props.goToChatView(item)} className="list-group-item pointer text-wrap text-break">{item}{!this.props.conversations[item].readStatus ? <span class="badge badge-secondary">New</span>: <span></span>}</li>
                                     ))
                             }
                             
