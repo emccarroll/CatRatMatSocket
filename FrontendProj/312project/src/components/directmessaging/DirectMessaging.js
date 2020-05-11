@@ -8,7 +8,8 @@ export default class DirectMessaging extends Component {
         super(props);
         this.state = {
           data:"",
-          showModal:false
+          showModal:false,
+          onNewMessage:null
         };
     }
     toggleModal(){
@@ -18,13 +19,14 @@ export default class DirectMessaging extends Component {
     }
 
 
+
     render(){
         
 
 
         return(
             <div>
-                {this.state.showModal ? <ChatWindow></ChatWindow> :<div></div>}
+                {this.state.showModal ? <ChatWindow onNewMessage={this.props.onNewMessage}></ChatWindow> :<div></div>}
                 <div className="FloatingActionButton" onClick={(e)=>this.toggleModal()}><h2 className="FabText">Dm's</h2></div>
             </div>
             

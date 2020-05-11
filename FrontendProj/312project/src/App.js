@@ -19,6 +19,7 @@ import logo from "./logo.svg";
 import * as Constants from "./Constants.js"
 
 const socket = openSocket(Constants.config.url["API_URL"]+'/',{transports: ['websocket']});
+const secureSocket=openSocket(Constants.config.url["API_URL"]+'/chat',{transports: ['websocket']});
 
 class App extends Component {
 
@@ -28,16 +29,22 @@ class App extends Component {
     super(props);
     this.state = {
       data:"",
-      isLoggedIn:false
+      isLoggedIn:false,
+      newMessage: ""
     };
 
     // This binding is necessary to make `this` work in the callback
     this.sendSocketIO = this.sendSocketIO.bind(this);
     this.apples= this.apples.bind(this);
+    this.onAuthenticate=this.onAuthenticate.bind(this);
+    this.onChatUpdate=this.onChatUpdate.bind(this);
     this.SuccesfullLoginCallback= this.SuccesfullLoginCallback.bind(this);
     this.SuccesfullLogoutCallback= this.SuccesfullLogoutCallback.bind(this);
+    this.getCookie=this.getCookie.bind(this);
     
     socket.on('update', this.apples)
+    secureSocket.on('authenticate', this.onAuthenticate);
+    secureSocket.on('chatUpdate', this.onChatUpdate);
   }
 
   socketUpdateHandler=(a)=>{
@@ -49,6 +56,18 @@ apples(msg){
   this.setState(state => ({
     data:msg
   }))
+}
+onAuthenticate(msg){
+  console.log(msg);
+  if(msg==="login successful!"){
+    console.log("We successfully authenticated on the secure socket")
+  }
+
+}
+onChatUpdate(msg){
+  this.setState({
+    newMessage: msg
+  })
 }
 
 componentDidMount(){
@@ -67,6 +86,21 @@ sendSocketIO(s) {
   }
   
 }
+getCookie(cname){
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
 
 checkIfLoggedIn(){
   fetch(
@@ -84,8 +118,15 @@ checkIfLoggedIn(){
               loading:false,
               isLoggedIn:true
               
+              
             }));
-
+            var myAuth=this.getCookie("authToken");
+            var p= {
+              "username": result.username,
+              "authToken": myAuth
+            }
+            //console.log(p);
+            secureSocket.emit('authenticate', p)
             
           
         }
@@ -98,7 +139,44 @@ checkIfLoggedIn(){
       .catch((error) => {alert("Error getting Posts", error); alert(error)});
 }
 
-SuccesfullLoginCallback(){
+SuccesfullLoginCallback(username){
+
+            fetch(
+              Constants.config.url["API_URL"]+"/users/whoamI",
+                {
+                  method: "get",
+                  credentials: 'include'
+                }
+              )
+                .then((res) => res.json())
+                .then((result) => {
+                  if(result.status==="Success"){
+                    console.log(result);
+                    this.setState(state => ({
+                        loading:false,
+                        isLoggedIn:true,
+                        
+                        
+                      }));
+                      var myAuth=this.getCookie("authToken");
+                      var p= {
+                        "username": result.username,
+                        "authToken": myAuth
+                      }
+                      //console.log(p);
+                      secureSocket.emit('authenticate', p)
+                      
+                    
+                  }
+                  else{
+                    
+                  }
+                    
+                  
+                })
+                .catch((error) => {alert("Error getting checking if logged in", error); alert(error)});
+
+  
   this.setState({
     isLoggedIn:true
   })
@@ -175,7 +253,7 @@ onRouteChanged() {
           <Route path="/post/:postId" render={(props) => <PostPage {...props} socketHandler={this.socketUpdateHandler}  dataFromParent={this.state.data}></PostPage>} >
                 
             </Route> 
-            {this.state.isLoggedIn ? <DirectMessaging/> :<div/>}
+            {this.state.isLoggedIn ? <DirectMessaging onNewMessage={this.state.newMessage}/> :<div/>}
           
 
           {/* <Chat

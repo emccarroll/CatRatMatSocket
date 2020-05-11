@@ -553,7 +553,7 @@ userRoutes.route('/whoamI').get(function (req, res) {
                 if (result) {
                     res.send({ status: 'Success', username: account.user });
                 } else {
-                    res.send({ status: 'error' });
+                    res.send({ status: 'errorYa Man' });
                 }
             });
         }
