@@ -27,14 +27,16 @@ export default class ProfilePage extends Component {
                 credentials: 'include',
                 method: "post"
               }
-            ).then((res)=>{ 
-              if (res.status == 200){
+            ).then((res) => res.json())
+            .then((result) => { 
+              if (result.status == "success"){
                 console.log("toggled successfully");
                 this.setState(state => ({
                   isFollowing: !this.state.isFollowing,
                 }));
               }
               else{
+                console.log(result);
                 console.log("toggle unsuccessful");
               }
             }
