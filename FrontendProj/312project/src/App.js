@@ -175,9 +175,9 @@ onRouteChanged() {
           <Route path="/post/:postId" render={(props) => <PostPage {...props} socketHandler={this.socketUpdateHandler}  dataFromParent={this.state.data}></PostPage>} >
                 
             </Route> 
-          <DirectMessaging>
+            {this.state.isLoggedIn ? <DirectMessaging/> :<div/>}
+          
 
-          </DirectMessaging>
           {/* <Chat
             handleNewUserMessage={this.handleNewUserMessage}
           /> */}

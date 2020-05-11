@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import * as Constants from "../../Constants.js";
+import ListOfConversations from "./ListOfConversations"
+import ConvoView from "./ConvoView"
 import "./dmStyles.css"
 
 export default class ChatWindow extends Component {
@@ -7,13 +9,41 @@ export default class ChatWindow extends Component {
         super(props);
         this.state = {
           data:"",
-          showModal:false
+          showModal:false,
+          messages:[],
+          isLoading:true
         };
+        this.goToChatView=this.goToChatView.bind(this);
+    }
+    componentDidMount(){
+        this.getAllMessages()
     }
     toggleModal(){
         this.setState({
             showModal:!this.state.showModal
         })
+    }
+    filterMessages(messages){
+        console.log(messages)
+        var messagesDictionary= new Object();
+
+        for(var i=0; i<messages.length;i++){
+            var msgObj=messages[i]
+            console.log("the user from this message is "+msgObj.user);
+            if(messagesDictionary[msgObj.user]){
+                messagesDictionary[msgObj.user].push(msgObj);
+            }
+            else{
+                messagesDictionary[msgObj.user]= [msgObj];
+            }
+        }
+        this.setState({
+            isLoading:false,
+            messageMap:messagesDictionary
+        })
+
+
+
     }
     getAllMessages(){
         fetch(
@@ -27,20 +57,51 @@ export default class ChatWindow extends Component {
             .then((res) => res.json())
             .then((result) => {
                 console.log(result);
-                var arr =Array.from(result, x=>x._id);
-                this.setState(state => ({
-                    posts: result,
-                    postIds:arr
-                  }));
-                  this.props.socketHandler("homepage");
-                  /* console.log("the array is");
-                  console.log(arr);
-                var x= JSON.stringify(arr); */
-                  
+                if(result.Status==="success"){
+                    this.setState({
+                        messages:result.messages
+                    })
+                }
+                this.filterMessages(result.messages);
               
             })
-            .catch((error) => {alert("Error getting Posts", error); alert(error)});
+            .catch((error) => {alert("Error getting DMS", error); alert(error)});
     }
+    goToChatView(username){
+       this.setState({
+           showChatView:true,
+           openConvoWith:username
+       })
+    }
+    OnPostDMButtonClicked(messageText){
+        fetch(
+            Constants.config.url["API_URL"]+"/chat/message",
+            {
+              method: "post",
+              
+              credentials: "include",
+              
+              headers: {
+                'Content-Type': 'application/json'},
+                
+              body: JSON.stringify({
+                "username": this.state.openConvoWith,
+                "message": messageText
+              })
+            }
+          )
+            .then((res) => res.json())
+            .then((result) => {
+                console.log(result);
+                if(result.Status==="success"){
+                    
+                }
+                
+              
+            })
+            .catch((error) => {alert("Error getting DMS", error); alert(error)});
+    }
+
 
 
     render(){
@@ -50,27 +111,37 @@ export default class ChatWindow extends Component {
         return(
             <div className="ChatWindow Container-fluid justify-content-center">
                 <div className="row">
-                    <div className="col-12">
-                        <div className="btn-group width100" role="group" aria-label="Basic example">
-                            <button type="button" className="btn btn-outline">Chat List</button>
-                            <button type="button" className="btn btn-outline">Chat</button>
+                    <div className="col-12 text-center ">
+                        {/* <div className="nav nav-pills nav-fill width100" role="group" aria-label="Basic example">
+                            <li type="button" className="nav-item nav-link active tab">Chat List</li>
+                            <li type="button" className="nav-item nav-link active tab">Chat</li>
 
+                        </div> */}
+                        <div className="Container-fluid">
+                            <div className="row">
+                                <div className="col-2">
+
+                                </div>
+                                <div className="col-8">
+                                <h4>Direct Messaging</h4>
+                                </div>
+                                <div className="col-2">
+
+                                </div>
+                            </div>
                         </div>
+                        
                     </div>
                     
                 </div>
                 <div className="row">
                     <div className="col-12">
-                        <ul className="list-group width100">
-                            <li className="list-group-item">Cras justo odio</li>
-                            <li className="list-group-item">Dapibus ac facilisis in</li>
-                            <li className="list-group-item">Morbi leo risus</li>
-                            <li className="list-group-item">Porta ac consectetur ac</li>
-                            <li className="list-group-item">Vestibulum at eros</li>
-                            <li className="list-group-item">Vestibulum at eros</li>
-                            <li className="list-group-item">Vestibulum at eros</li>
-                            <li className="list-group-item">Vestibulum at eros</li>
+                        {this.state.showChatView ? <ConvoView isLoading={this.state.isLoading} OnPostDMButtonClicked={this.OnPostDMButtonClicked} messages={this.state.messageMap[this.state.openConvoWith]}></ConvoView> : 
+                        <ul className="list-group width100 overflow-auto">
+                            <ListOfConversations isLoading={this.state.isLoading} conversations={this.state.messageMap} goToChatView={this.goToChatView} />
                         </ul>
+                        }
+                        
                     </div>
                     
                 </div>

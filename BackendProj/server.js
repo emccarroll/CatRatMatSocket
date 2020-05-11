@@ -515,7 +515,7 @@ chatRoutes.route('/getFromUser/:user').get(function (req, res) {
 chatRoutes.route('/getMessages').get(function (req, res) {
     Account.find({ user: req.cookies['username'] }, function (err, data) {
         if (data.length == 0) {
-            res.send('invalid authentication token!');
+            res.send({Status:'error',message:'invalid authentication token!'});
         } else {
             var account = data[0];
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
@@ -523,7 +523,7 @@ chatRoutes.route('/getMessages').get(function (req, res) {
                     res.send({ Status: 'success', messages: data[0].messages });
 
                 } else {
-                    res.send('invalid authentication token!');
+                    res.send({Status:'error',message:'invalid authentication token!'});
                 }
             });
         }
