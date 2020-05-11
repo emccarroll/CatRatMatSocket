@@ -18,12 +18,4 @@ services:
     db:
       container_name: mongo
       image: mongo
-    frontend:
-      container_name: frontend
-      restart: always
-      build: ./FrontendProj/312project
-      ports:
-        - "8000:8000"
-      volumes:
-        - ./FrontendProj/312project:/usr/src/app
-        - /usr/src/app/node_modules
+    
