@@ -359,15 +359,27 @@ userRoutes.route('/toggleFollow/:user').post(function (req, res) {
                     }
 
                     var isFollowing = account.following.get(req.params.user);
-
-                    if (isFollowing != true) {
-                        account.following.set(req.params.user, true);
-                        res.send({ status: "success", message: "followed" });
-                    } else {
-                        account.following.set(req.params.user, false);
-                        res.send({ status: "success", message: "unfollowed" });
+                    if (req.cookies['username'] == req.params.user) {
+                        if (isFollowing != false) {
+                            account.following.set(req.params.user, false);
+                            account.save();
+                        }
+                        res.send({ status: "error", message: "you cannot follow yourself" });
                     }
-                    account.save();
+                    else {
+                        if (isFollowing != true) {
+                            account.following.set(req.params.user, true);
+                            account.save();
+                            res.send({ status: "success", message: "followed" });
+                            
+                        } else {
+                            account.following.set(req.params.user, false);
+                            account.save();
+                            res.send({ status: "success", message: "unfollowed" });
+                            
+                        }
+                    }
+                    
 
 
                 } else {
