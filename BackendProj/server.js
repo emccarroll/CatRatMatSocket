@@ -192,20 +192,15 @@ io.on('connection', (socket) => {
 
 });
 
-const corsOptions = {
-    origin: 'http://localhost:8000',
-    methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
-    credentials: true,
-    allowedHeaders: "Content-Type, Authorization, X-Requested-With"
-}
 
-app.use(cors(corsOptions));
+
+app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser('434secretfortestingpurposes12'));
-app.use('/posts', cors(corsOptions), upload.single('file'), postRoutes);
-app.use('/users', cors(corsOptions), userRoutes);
-app.use('/images', cors(corsOptions), dataRoutes);
-app.use('/chat', cors(corsOptions), chatRoutes);
+app.use('/posts', upload.single('file'), postRoutes);
+app.use('/users', userRoutes);
+app.use('/images',  dataRoutes);
+app.use('/chat',  chatRoutes);
 
 const saltRounds = 10;
 
@@ -294,6 +289,17 @@ chatRoutes.route('/message').post(function (req, res) {
                             }
                             var lastMessage = specificedUser.messages[specificedUser.messages.length - 1];
                             //TODO: Handle Websocket stuff here
+
+                            SocketMap.find({ user: req.cookies['username'] }, function (err, socketUser) {
+                                if (socketUser.length == 0) {
+                                    console.log('specified user is not logged in?');
+                                } else {
+                                    var socketID = socketUser[0].socketID;
+                                    console.log(socketID);
+                                    io.of('/chat').to(socketID).emit('chatUpdate', lastMessage);
+                                }
+                            });
+                            
                             SocketMap.find({ user: req.body.username }, function (err, socketUser) {
                                 if (socketUser.length == 0) {
                                     console.log('specified user is not logged in?');
