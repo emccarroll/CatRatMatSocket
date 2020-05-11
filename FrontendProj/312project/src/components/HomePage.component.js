@@ -122,6 +122,8 @@ export default class HomePage extends Component {
             .then((result) => {
                 console.log(result);
                 var arr =Array.from(result, x=>x._id);
+                result.reverse();
+                arr.reverse();
                 this.setState(state => ({
                     posts: result,
                     postIds:arr
@@ -154,6 +156,8 @@ export default class HomePage extends Component {
           .then((result) => {
               console.log(result);
               var arr =Array.from(result, x=>x._id);
+            result.reverse();
+            arr.reverse();
               this.setState(state => ({
                   posts: result,
                   postIds:arr
