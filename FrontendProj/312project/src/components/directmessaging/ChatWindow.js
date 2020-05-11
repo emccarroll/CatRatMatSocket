@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import * as Constants from "../../Constants.js";
 import ListOfConversations from "./ListOfConversations"
 import ConvoView from "./ConvoView"
+import ComposeNew from "./ComposeNew"
 import "./dmStyles.css"
 
 export default class ChatWindow extends Component {
@@ -18,6 +19,9 @@ export default class ChatWindow extends Component {
         };
         this.goToChatView=this.goToChatView.bind(this);
         this.OnPostDMButtonClicked=this.OnPostDMButtonClicked.bind(this);
+        this.OnPostDMToNewUserButtonClicked=this.OnPostDMToNewUserButtonClicked.bind(this);
+        this.updatedReadStatus=this.updatedReadStatus.bind(this);
+        //this.ConvoView=this.ConvoView.bind(this);
     }
     componentDidMount(){
         this.whoAmI();
@@ -35,36 +39,45 @@ export default class ChatWindow extends Component {
         const {messageMap, messages}=this.state;
         if (nextProps.onNewMessage !== onNewMessage) {
             console.log("yea yea")
+            console.log(onNewMessage);
 
-
-            if((nextProps.onNewMessage.fromUser===this.state.username)&&(nextProps.onNewMessage.toUser===this.state.username)){
-                if(messageMap[nextProps.onNewMessage.fromUser]){
-                    messageMap[nextProps.onNewMessage.fromUser].push(nextProps.onNewMessage);
+            if((onNewMessage.fromUser===this.state.username)&&(onNewMessage.toUser===this.state.username)){
+                if(messageMap[onNewMessage.fromUser]){
+                    messageMap[onNewMessage.fromUser].obj.push(onNewMessage);
+                    if(!onNewMessage.readStatus){
+                        messageMap[onNewMessage.fromUser].readStatus=false;
+                    }
                 }
-                else messageMap[nextProps.onNewMessage.fromUser]=[nextProps.onNewMessage];
+                else messageMap[onNewMessage.fromUser]={readStatus:onNewMessage.readStatus,obj:[onNewMessage]};
             }
-            else if((nextProps.onNewMessage.fromUser===this.state.username)&&(nextProps.onNewMessage.toUser!==this.state.username)){
-                if(messageMap[nextProps.onNewMessage.toUser]){
-                    messageMap[nextProps.onNewMessage.toUser].push(nextProps.onNewMessage);
+            else if((onNewMessage.fromUser===this.state.username)&&(onNewMessage.toUser!==this.state.username)){
+                if(messageMap[onNewMessage.toUser]){
+                    messageMap[onNewMessage.toUser].obj.push(onNewMessage);
+                    /*if(!onNewMessage.readStatus){
+                        messageMap[onNewMessage.toUser].readStatus=false;
+                    }*/
                     console.log("yea man its me2")
                 }
                 else{
-                    messageMap[nextProps.onNewMessage.toUser]=[nextProps.onNewMessage];
+                    messageMap[onNewMessage.toUser]={readStatus:true,obj:[onNewMessage]};
                 }
                 
             }
-            else if((nextProps.onNewMessage.fromUser!==this.state.username)&&(nextProps.onNewMessage.toUser===this.state.username)){
-                if(messageMap[nextProps.onNewMessage.fromUser]){
-                    messageMap[nextProps.onNewMessage.fromUser].push(nextProps.onNewMessage);
+            else if((onNewMessage.fromUser!==this.state.username)&&(onNewMessage.toUser===this.state.username)){
+                if(messageMap[onNewMessage.fromUser]){
+                    messageMap[onNewMessage.fromUser].obj.push(onNewMessage);
+                    if(!onNewMessage.readStatus){
+                        messageMap[onNewMessage.fromUser].readStatus=false;
+                    }
                     console.log("yea man its me")
                 }
-                else messageMap[nextProps.onNewMessage.fromUser]=[nextProps.onNewMessage];
+                else messageMap[onNewMessage.fromUser]={readStatus:onNewMessage.readStatus,obj:[onNewMessage]};
             }
             else{
-                console.log((nextProps.onNewMessage.fromUser!==this.state.username))
-                console.log((nextProps.onNewMessage.toUser===this.state.username))
+                console.log((onNewMessage.fromUser!==this.state.username))
+                console.log((onNewMessage.toUser===this.state.username))
                 console.log(nextProps)
-                console.log((nextProps.onNewMessage).toUser);
+                console.log((onNewMessage).toUser);
                 console.log(this.state.username)
                 console.log("non of the above dawg")
             }
@@ -117,24 +130,33 @@ export default class ChatWindow extends Component {
             
                 if((msgObj.fromUser===this.state.username)&&(msgObj.toUser===this.state.username)){
                     if(messageMap[msgObj.fromUser]){
-                        messageMap[msgObj.fromUser].push(msgObj);
+                        messageMap[msgObj.fromUser].obj.push(msgObj);
+                        if(!msgObj.readStatus){
+                            messageMap[msgObj.fromUser].readStatus=false;
+                        }
                     }
-                    else messageMap[msgObj.fromUser]=[msgObj];
+                    else messageMap[msgObj.fromUser]={readStatus:msgObj.readStatus,obj:[msgObj]};
                 }
                 else if((msgObj.fromUser===this.state.username)&&(msgObj.toUser!==this.state.username)){
                     if(messageMap[msgObj.toUser]){
-                        messageMap[msgObj.toUser].push(msgObj);
+                        messageMap[msgObj.toUser].obj.push(msgObj);
+                        /*if(!msgObj.readStatus){
+                            messageMap[msgObj.toUser].readStatus=false;
+                        }*/
                     }
                     else{
-                        messageMap[msgObj.toUser]=[msgObj];
+                        messageMap[msgObj.toUser]={readStatus:true,obj:[msgObj]};
                     }
                     
                 }
                 else if((msgObj.fromUser!==this.state.username)&&(msgObj.toUser===this.state.username)){
                     if(messageMap[msgObj.fromUser]){
-                        messageMap[msgObj.fromUser].push(msgObj);
+                        messageMap[msgObj.fromUser].obj.push(msgObj);
+                        if(!msgObj.readStatus){
+                            messageMap[msgObj.fromUser].readStatus=false;
+                        }
                     }
-                    else messageMap[msgObj.fromUser]=[msgObj];
+                    else messageMap[msgObj.fromUser]={readStatus:msgObj.readStatus,obj:[msgObj]};
                 }
                     
                     
@@ -206,6 +228,43 @@ export default class ChatWindow extends Component {
             })
             .catch((error) => {alert("Error getting DMS", error); alert(error)});
     }
+    OnPostDMToNewUserButtonClicked(toUser,messageText){
+        console.log("the message text is: "+messageText)
+        console.log("sending to "+ toUser);
+        fetch(
+            Constants.config.url["API_URL"]+"/chat/message",
+            {
+              method: "post",
+              
+              credentials: "include",
+              
+              headers: {
+                'Content-Type': 'application/json'},
+                
+              body: JSON.stringify({
+                "username": toUser,
+                "message": messageText
+              })
+            }
+          )
+            .then((res) => res.json())
+            .then((result) => {
+                console.log(result);
+                if(result.Status==="success"){
+                    
+                }
+                else if(result.message==="specified user does not exist"){
+                    this.setState({ComposeNewError:"User Does Not Exist"})
+                }
+                
+              
+            })
+            .catch((error) => {alert("Error getting DMS", error); alert(error)});
+    }
+    updatedReadStatus(){
+        console.log("Updatin The Read status")
+        this.getAllMessages();
+    }
 
 
 
@@ -224,14 +283,19 @@ export default class ChatWindow extends Component {
                         </div> */}
                         <div className="Container-fluid">
                             <div className="row">
+                                
                                 <div className="col-2">
-
+                                    {this.state.showChatView ||this.state.showComposeNew ? <button onClick={()=>{this.setState({showComposeNew:false,showChatView:false,openConvoWith:null})}} type="button" class="btn btn-link">Back</button>
+                                       : <div> </div>
+                                        }
                                 </div>
-                                <div className="col-8">
+                                <div className="col-7">
                                 <h4>Direct Messaging</h4>
                                 </div>
-                                <div className="col-2">
-
+                                <div className="col-3">
+                                {this.state.showChatView ? <div> </div>
+                                       : <button onClick={()=>{this.setState({showComposeNew:true})}} type="button" class="btn btn-link">New Convo</button>
+                                        }
                                 </div>
                             </div>
                         </div>
@@ -241,7 +305,10 @@ export default class ChatWindow extends Component {
                 </div>
                 <div className="row">
                     <div className="col-12">
-                        {this.state.showChatView ? <ConvoView isLoading={this.state.isLoading} OnPostDMButtonClicked={this.OnPostDMButtonClicked} messages={this.state.messageMap[this.state.openConvoWith]}></ConvoView> : 
+                        
+                        {this.state.showComposeNew ? <ComposeNew ComposeNewError={this.state.ComposeNewError}  isLoading={this.state.isLoading} OnPostDMToNewUserButtonClicked={this.OnPostDMToNewUserButtonClicked}></ComposeNew> :
+                        
+                        this.state.showChatView ? <ConvoView isLoading={this.state.isLoading} updatedReadStatus={this.updatedReadStatus} OnPostDMButtonClicked={this.OnPostDMButtonClicked} username={this.state.username} messages={this.state.messageMap[this.state.openConvoWith].obj}></ConvoView> : 
                         <ul className="list-group width100 overflow-auto">
                             <ListOfConversations isLoading={this.state.isLoading} conversations={this.state.messageMap} goToChatView={this.goToChatView} />
                         </ul>
