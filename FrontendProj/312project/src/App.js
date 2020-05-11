@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link, useLocation, Redirect } from "react-router-dom";
 
 import { Chat } from 'react-chat-popup';
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -163,7 +163,10 @@ onRouteChanged() {
                  >
             </Route> 
           <Route path="/create" >
-                <CreatePost socketHandler={this.socketUpdateHandler} ></CreatePost>
+                {this.state.isLoggedIn ? <CreatePost socketHandler={this.socketUpdateHandler} ></CreatePost> :
+                          <Redirect to={'/login'} />
+                        }
+                
             </Route> 
           <Route path="/login">
                 <CreateLogin socketHandler={this.socketUpdateHandler} SuccesfullLoginCallback={this.SuccesfullLoginCallback} ></CreateLogin>
