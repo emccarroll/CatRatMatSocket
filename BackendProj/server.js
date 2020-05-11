@@ -272,28 +272,33 @@ postRoutes.route('/').get(function (req, res) {
 });
 
 chatRoutes.route('/message').post(function (req, res) {
-    Account.find({ user: req.cookies['username'] }, function (err, data) {
-        if (data.length == 0) {
+    Account.find({ user: req.cookies['username'] }, function (err, sendingUser) {
+        if (sendingUser.length == 0) {
             res.send('invalid authentication token!');
         } else {
-            var account = data[0];
+            var account = sendingUser[0];
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
                 if (result) {
-                    Account.find({ user: req.body.username }, function (err, data) {
+                    Account.find({ user: req.body.username }, function (err, receivingUser) {
 
-                        if (data.length == 0) {
+                        if (receivingUser.length == 0) {
                             res.send({ status: 'error', message: 'specified user does not exist' });
                         } else {
-                            var specificedUser = data[0];
-                            specificedUser.messages.push({ user: req.cookies['username'], message: req.body.message, readStatus: false });
+                            var specificedUser = receivingUser[0];
+                            specificedUser.messages.push({ fromUser: req.cookies['username'], toUser: req.body.username, message: req.body.message, readStatus: false });
                             specificedUser.save();
+                            if (req.cookies['username'] != req.body.username) {
+                                var userWhoSent = sendingUser[0];
+                                userWhoSent.messages.push({ fromUser: req.cookies['username'], toUser: req.body.username, message: req.body.message, readStatus: true });
+                                userWhoSent.save();
+                            }
                             var lastMessage = specificedUser.messages[specificedUser.messages.length - 1];
                             //TODO: Handle Websocket stuff here
-                            SocketMap.find({ user: req.body.username }, function (err, data) {
-                                if (data.length == 0) {
+                            SocketMap.find({ user: req.body.username }, function (err, socketUser) {
+                                if (socketUser.length == 0) {
                                     console.log('specified user is not logged in?');
                                 } else {
-                                    var socketID = data[0].socketID;
+                                    var socketID = socketUser[0].socketID;
                                     console.log(socketID);
                                     io.of('/chat').to(socketID).emit('chatUpdate', lastMessage);
                                 }
@@ -488,7 +493,7 @@ chatRoutes.route('/getFromUser/:user').get(function (req, res) {
                     var messages = data[0].messages;
                     var newMessages = [];
                     for (var i = 0; i < messages.length; i++) {
-                        if (messages[i].user == req.params.user) {
+                        if (messages[i].fromUser == req.params.user) {
                             newMessages.push(messages[i]);
                         }
                         if (i == messages.length - 1) {
