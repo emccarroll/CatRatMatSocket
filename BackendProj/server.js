@@ -691,10 +691,11 @@ userRoutes.route('/login').post(function (req, res) {
                         bcrypt.hash(token, saltRounds, function (err, hash) {
                             accounts[0].authSession = hash;
                             accounts[0].save();
+                            res.cookie('authToken', token, { maxAge: 30 * 60000,httpOnly:false });
+                            res.cookie('username', accounts[0].user, { maxAge: 30 * 60000,httpOnly:false });
+                            res.send('login correct');
                         });
-                        res.cookie('authToken', token, { maxAge: 30 * 60000 });
-                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000 });
-                        res.send('login correct');
+                        
                     });
 
                 } else {
