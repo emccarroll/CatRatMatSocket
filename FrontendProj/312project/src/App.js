@@ -135,10 +135,12 @@ onRouteChanged() {
                   <Link to="/" className="nav-link">Home</Link>
                 </li>
                 <li className="navbar-item">
-                  <Link to={"/profile/"+sessionStorage.getItem("username")} className="nav-link">Profile</Link>
+                 {this.state.isLoggedIn ?
+                  <Link to={"/profile/"+sessionStorage.getItem("username")} className="nav-link">Profile</Link> : <div></div>}
                 </li>
                 <li className="navbar-item">
-                  <Link to="/create" className="nav-link">Create Post</Link>
+                {this.state.isLoggedIn ?
+                  <Link to="/create" className="nav-link">Create Post</Link> : <div></div>}
                 </li>
                 <li className="navbar-item">
                   {this.state.isLoggedIn ? <Link to="/logout" className="nav-link">Logout</Link> :
