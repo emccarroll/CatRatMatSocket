@@ -25,7 +25,8 @@ export default class CreatePost extends Component {
         });
     }
 
-    onChangePostFile = e => {
+    onChangePostFile (e) {
+        console.log("*** changed post file")
         if(e.target.value.length > 0){
             var obj = e.target.files[0];
             var filename = obj['name'];
@@ -83,7 +84,7 @@ export default class CreatePost extends Component {
             this.setState({
                 image_description: '',
                 image_obj: null,
-                image_name: 'Choose image'
+                image_name: 'Select image'
             })
         });
         
@@ -104,7 +105,9 @@ export default class CreatePost extends Component {
                     </div>
                     <div class="form-group custom-file">
                         <input type="file" class="custom-file-input" id="customFile" value={this.state.Post_file}
-                                onChange={this.onChangePostFile}/>
+                                onChange={this.onChangePostFile} onClick={(event)=> { 
+                                    event.target.value = null
+                               }}/>
                         <label class="custom-file-label" for="customFile">{this.state.image_name}</label>
                         </div>
 
