@@ -20,11 +20,28 @@ export default class ProfilePage extends Component {
       }
 
     handleFollow(){
-        
-        this.setState(state => ({
-            isFollowing: !state.isFollowing
-          }));
+          //localhost:3000/users/toggleFollow/jacobTesterman2
+          fetch(
+            Constants.config.url["API_URL"]+"/users/toggleFollow/"+this.state.profileUsername,
+              {
+                credentials: 'include',
+                method: "post"
+              }
+            ).then((res)=>{ 
+              if (res.status == 200){
+                console.log("toggled successfully");
+                this.setState(state => ({
+                  isFollowing: !this.state.isFollowing,
+                }));
+              }
+              else{
+                console.log("toggle unsuccessful");
+              }
+            }
+          ).catch((error) => {alert("Error. Maybe try logging in?", error)});
+  
     }
+
     OnGoToCommentsButtonClicked(postId){
 
         this.setState({GoToCommentPage:true,
@@ -36,50 +53,68 @@ export default class ProfilePage extends Component {
         console.log("on the profile page")
         //dthis.props.socketHandler("ProfilePage");
         const { profileUsername } = this.props.match.params
+        let setIsFollowing = this.setIsFollowing(profileUsername);
         this.setState(state => ({
-          profileUsername: profileUsername
+            profileUsername: profileUsername,
           }));
         this.getPosts(profileUsername);
       }
+
+    setIsFollowing(profileUsername) {
+            fetch(
+            Constants.config.url["API_URL"]+"/users/amIFollowing/"+profileUsername,
+              {
+                credentials: 'include',
+                method: "get"
+              }
+            ).then((res)=>{ return res.json() }).then((text)=>{
+              this.setState(state => ({
+                isFollowing: text.following,
+              }));
+          }).catch((error) => {alert("ERROR");this.state.isFollowing = false});
+    }
 
     componentWillUnmount(){
         console.log("leaving the profile page")
             
         }
-      getPosts(profileUsername){
-        
-        fetch(
-          Constants.config.url["API_URL"]+"/posts/user/"+profileUsername,
-            {
-              method: "get"
+
+
+
+    getPosts(profileUsername){
+      
+      fetch(
+        Constants.config.url["API_URL"]+"/posts/user/"+profileUsername,
+          {
+            method: "get"
+            
+          }
+        )
+          .then((res) => res.json())
+          .then((result) => {
+            if(result.status==="Success"){
+              console.log(result);
+              this.setState(state => ({
+                  loading:false,
+                  userNotFound:false,
+                  posts: result.posts
+                }));
+
+                var arr =result.posts;
+                var x= JSON.stringify(arr);
+                this.props.socketHandler(x);
               
             }
-          )
-            .then((res) => res.json())
-            .then((result) => {
-              if(result.status==="Success"){
-                console.log(result);
-                this.setState(state => ({
-                    loading:false,
-                    userNotFound:false,
-                    posts: result.posts
-                  }));
-
-                  var arr =result.posts;
-                  var x= JSON.stringify(arr);
-                  this.props.socketHandler(x);
-                
-              }
-              else{
-                this.setState(state =>({
-                  loading:false,
-                  userNotFound:true,
-                }))
-              }
-                
+            else{
+              this.setState(state =>({
+                loading:false,
+                userNotFound:true,
+              }))
+            }
               
-            })
-            .catch((error) => {alert("Error getting Posts", error); alert(error)});
+            
+          })
+          .catch((error) => {alert("Error getting Posts", error); alert(error)});
 
     }
 
