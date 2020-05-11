@@ -30,7 +30,7 @@ var upload = multer({
 
 let Post = require('./post.model');
 let Account = require('./account.model');
-let socketMap = require('./socketMap.model');
+let SocketMap = require('./socketMap.model');
 
 const PORT = 3000;
 const mongoIP = "mongo";
@@ -38,6 +38,45 @@ const mongoPort = 27017;
 const postRoutes = express.Router();
 const userRoutes = express.Router();
 const dataRoutes = express.Router();
+const chatRoutes = express.Router();
+
+const dm = io.of('/chat').on('connection', (socket) => {
+    socket.on('authenticate', (msg) => {
+        console.log(msg.username);
+        Account.find({ user: msg.username }, function (err, data) {
+            if (data.length == 0) {
+                socket.emit('authenticate', 'account doesn\'t exist!');
+            } else {
+                var account = data[0];
+                console.log(account.user);
+                console.log(msg.authToken + " " + account.authSession);
+                bcrypt.compare(msg.authToken.trim(), account.authSession, function (err, result) {
+
+                    if (result) {
+                        SocketMap.find({ user: msg.username }, function (err, data) {
+                            if (data.length == 0) {
+                                var sM = new SocketMap();
+                                sM.user = account.user;
+                                sM.socketID = socket.id;
+                                sM.save();
+                            } else {
+                                data[0].socketID = socket.id;
+                                data[0].save();
+                            }
+
+                        });
+                        socket.emit('authenticate', 'login successful! ');
+
+                    } else {
+                        console.log(result);
+                        socket.emit('authenticate', 'invalid authentication token');
+                    }
+                });
+            }
+        });
+    });
+
+});
 
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -95,15 +134,17 @@ io.on('connection', (socket) => {
     socket.on('follow', (msg) => {
         var postArr = JSON.parse(msg);
 
+
         //Verify these are legitimate users
 
 
         var promise = new Promise(function (resolve, reject) {
-            console.log()
+
             for (const userID of postArr) {
                 var loops = 0;
                 Account.find({ user: userID }, function (err, post) {
-                    if (!post) {
+                    console.log(post);
+                    if (post.length == 0) {
                         console.log('incorrect!');
                         socket.emit({ status: 'error: username not found' });
                         reject();
@@ -148,21 +189,18 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
+
 });
 
-const corsOptions = {
-    origin: 'http://localhost:8000',
-    methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
-    credentials: true,
-    allowedHeaders: "Content-Type, Authorization, X-Requested-With"
-}
 
-app.use(cors(corsOptions));
+
+app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser('434secretfortestingpurposes12'));
-app.use('/posts', cors(corsOptions), upload.single('file'), postRoutes);
-app.use('/users', cors(corsOptions), userRoutes);
-app.use('/images', cors(corsOptions), dataRoutes);
+app.use('/posts', upload.single('file'), postRoutes);
+app.use('/users', userRoutes);
+app.use('/images', dataRoutes);
+app.use('/chat', chatRoutes);
 
 const saltRounds = 10;
 
@@ -228,6 +266,311 @@ postRoutes.route('/').get(function (req, res) {
     });
 });
 
+chatRoutes.route('/message').post(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, sendingUser) {
+        if (sendingUser.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = sendingUser[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    Account.find({ user: req.body.username }, function (err, receivingUser) {
+
+                        if (receivingUser.length == 0) {
+                            res.send({ status: 'error', message: 'specified user does not exist' });
+                        } else {
+                            var specificedUser = receivingUser[0];
+                            specificedUser.messages.push({ fromUser: req.cookies['username'], toUser: req.body.username, message: req.body.message, readStatus: false });
+                            specificedUser.save();
+                            if (req.cookies['username'] != req.body.username) {
+                                var userWhoSent = sendingUser[0];
+                                userWhoSent.messages.push({ fromUser: req.cookies['username'], toUser: req.body.username, message: req.body.message, readStatus: true });
+                                userWhoSent.save();
+                            }
+                            var lastMessage = specificedUser.messages[specificedUser.messages.length - 1];
+                            //TODO: Handle Websocket stuff here
+
+                            if (req.cookies['username'] != req.body.username) {
+                                SocketMap.find({ user: req.cookies['username'] }, function (err, socketUser) {
+                                    if (socketUser.length == 0) {
+                                        console.log('specified user is not logged in?');
+                                    } else {
+                                        var socketID = socketUser[0].socketID;
+                                        console.log(socketID);
+                                        io.of('/chat').to(socketID).emit('chatUpdate', lastMessage);
+                                    }
+                                });
+                            }
+
+                            SocketMap.find({ user: req.body.username }, function (err, socketUser) {
+                                if (socketUser.length == 0) {
+                                    console.log('specified user is not logged in?');
+                                } else {
+                                    var socketID = socketUser[0].socketID;
+                                    console.log(socketID);
+                                    io.of('/chat').to(socketID).emit('chatUpdate', lastMessage);
+                                }
+                            });
+
+                            //
+
+                            res.send({ Status: 'success' });
+                            console.log(specificedUser.messages);
+                        }
+                    });
+
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+
+});
+
+chatRoutes.route('/markRead/:id').post(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    var messages = data[0].messages;
+                    for (var i = 0; i < messages.length; i++) {
+                        if (messages[i]._id == req.params.id) {
+                            messages[i].readStatus = true;
+                            data[0].messages = messages;
+                            data[0].save();
+                            res.send({ Status: 'success' });
+                            return;
+                        }
+                    }
+                    res.send({ Status: 'error' });
+
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+
+});
+
+userRoutes.route('/toggleFollow/:user').post(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    var account = data[0];
+                    if (!account.following) {
+                        account.following = {};
+                        account.save();
+                    }
+
+                    var isFollowing = account.following.get(req.params.user);
+                    if (req.cookies['username'] == req.params.user) {
+                        if (isFollowing != false) {
+                            account.following.set(req.params.user, false);
+                            account.save();
+                        }
+                        res.send({ status: "error", message: "you cannot follow yourself" });
+                    }
+                    else {
+                        if (isFollowing != true) {
+                            account.following.set(req.params.user, true);
+                            account.save();
+                            res.send({ status: "success", message: "followed" });
+
+                        } else {
+                            account.following.set(req.params.user, false);
+                            account.save();
+                            res.send({ status: "success", message: "unfollowed" });
+
+                        }
+                    }
+
+
+
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+
+});
+
+userRoutes.route('/amIFollowing/:user').get(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    var account = data[0];
+                    if (!account.following) {
+                        account.following = {};
+                        account.save();
+                    }
+
+                    var isFollowing = account.following.get(req.params.user);
+
+                    if (isFollowing != true) {
+                        res.send({ status: "success", following: false });
+                    } else {
+                        res.send({ status: "success", following: true });
+                    }
+
+
+
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+
+});
+
+userRoutes.route('/fromFollowing').get(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    if (!account.following) {
+                        account.following = {};
+                        account.save();
+                    }
+
+                    var keys = 0;
+                    for (const username of account.following.keys()) {
+                        keys += 1;
+                    }
+
+                    var anotherPromise = new Promise(function (resolve) {
+                        var retPosts = [];
+                        for (const username of account.following.keys()) {
+                            console.log(account.following.get(username));
+                            if (account.following.get(username) == true) {
+                                var promise = new Promise(function (resolve) {
+                                    Post.find({ user: username }, function (err, data) {
+                                        resolve(data);
+                                    });
+                                });
+
+                                promise.
+                                    then(function (posts) {
+                                        retPosts = retPosts.concat(posts);
+                                        keys -= 1;
+                                        if (keys == 0) {
+                                            resolve(retPosts);
+                                        }
+                                    });
+
+
+                            } else {
+                                keys -= 1;
+                                if (keys == 0) {
+                                    resolve(retPosts);
+                                }
+                            }
+                        }
+
+                    });
+                    anotherPromise.then(function (posts) {
+                        res.send(posts);
+                    });
+
+
+
+
+
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+
+});
+
+chatRoutes.route('/getFromUser/:user').get(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send('invalid authentication token!');
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    var messages = data[0].messages;
+                    var newMessages = [];
+                    for (var i = 0; i < messages.length; i++) {
+                        if (messages[i].fromUser == req.params.user) {
+                            newMessages.push(messages[i]);
+                        }
+                        if (i == messages.length - 1) {
+                            res.send({ Status: 'success', message: newMessages });
+                            return;
+                        }
+                    }
+                    res.send({ Status: 'error' });
+
+                } else {
+                    res.send('invalid authentication token!');
+                }
+            });
+        }
+    });
+
+});
+
+chatRoutes.route('/getMessages').get(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send({ Status: 'error', message: 'invalid authentication token!' });
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    res.send({ Status: 'success', messages: data[0].messages });
+
+                } else {
+                    res.send({ Status: 'error', message: 'invalid authentication token!' });
+                }
+            });
+        }
+    });
+
+});
+
+userRoutes.route('/whoamI').get(function (req, res) {
+    Account.find({ user: req.cookies['username'] }, function (err, data) {
+        if (data.length == 0) {
+            res.send({ status: 'error' });
+        } else {
+            var account = data[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    res.send({ status: 'Success', username: account.user });
+                } else {
+                    res.send({ status: 'errorYa Man' });
+                }
+            });
+        }
+    });
+
+});
+
+
+
 postRoutes.route('/:id').get(function (req, res) {
 
     let id = req.params.id;
@@ -239,9 +582,32 @@ postRoutes.route('/:id').get(function (req, res) {
 postRoutes.route('/user/:user').get(function (req, res) {
 
     let username = req.params.user;
-    Post.find({ user: username }, function (err, posts) {
-        res.json(posts);
-    });
+    Account.find({ user: username }, function (err, data) {
+
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        if (data.length == 0) {
+            var jsonObj = { "status": "User Not Found" }
+            res.status(404).json(jsonObj);
+        }
+        else {
+            //This means the user has to exist
+            Post.find({ user: username }, function (err, posts) {
+                res.json({ "status": "Success", "posts": posts });
+            });
+        }
+
+
+
+
+    }
+
+
+    )
+
 });
 
 postRoutes.route('/add').post(function (req, res) {
@@ -337,11 +703,14 @@ userRoutes.route('/login').post(function (req, res) {
                         var token = buffer.toString('base64');
                         bcrypt.hash(token, saltRounds, function (err, hash) {
                             accounts[0].authSession = hash;
-                            accounts[0].save();
+                            accounts[0].save().then(function () {
+                                res.cookie('authToken', token, { maxAge: 30 * 60000, httpOnly: false });
+                                res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, httpOnly: false });
+                                res.send('login correct');
+                            });
+
                         });
-                        res.cookie('authToken', token, { maxAge: 30 * 60000, httpOnly: true });
-                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, httpOnly: true });
-                        res.send('login correct');
+
                     });
 
                 } else {
@@ -355,6 +724,53 @@ userRoutes.route('/login').post(function (req, res) {
 
 
 });
+userRoutes.route('/logout').get(function (req, res) {
+    if (!req.cookies['username']) {
+        res.status(400).json({
+            "status": "error",
+            "message": "You're not logged in!"
+        });
+        return;
+    }
+    Account.find({ user: req.cookies['username'] }, function (err, accounts) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+
+        if (accounts.length == 0) {
+            res.status(400).json({
+                "status": "error",
+                "message": "could not find user " + req.cookies['username']
+            });
+            console.log('could not find user:' + req.cookies['username']);
+        } else {
+            var account = accounts[0];
+            bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
+                if (result) {
+                    res.clearCookie('username')
+                    res.clearCookie('authtoken')
+                    res.json({ "status": "Success" });
+                } else {
+                    res.status(400).json({
+                        "status": "error",
+                        "message": "invalid authentication token!"
+                    });
+
+                }
+
+
+
+
+            });
+        }
+
+    })
+
+
+});
+
+
 
 userRoutes.route('/').get(function (req, res) {
 
@@ -440,7 +856,7 @@ postRoutes.route('/upvote/:id').post(function (req, res) {
                                 res.status(200).send("upvote successful");
                             }
                             post.save();
-                            var responseObj = {id: req.params.id, updateType: "vote", vote: post.votes, voters: post.voters};
+                            var responseObj = { id: req.params.id, updateType: "vote", vote: post.votes, voters: post.voters };
                             io.to(req.params.id).emit('update', responseObj);
                             io.to('homepage').emit('update', responseObj);
                             io.to(account.user).emit('update', responseObj);

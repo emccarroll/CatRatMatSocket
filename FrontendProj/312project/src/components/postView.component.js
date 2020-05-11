@@ -6,7 +6,7 @@ import {faHeart,faComment} from '@fortawesome/fontawesome-free-regular'
 import { faHeart as faHeartSolid, faComment as faCommentSolid } from '@fortawesome/free-solid-svg-icons'
 
 import { s } from '@fortawesome/free-solid-svg-icons'
-import {Redirect} from 'react-router-dom';
+import {Redirect, Link} from 'react-router-dom';
 import * as Constants from "../Constants.js";
 
 export default class PostView extends Component {
@@ -142,7 +142,11 @@ export default class PostView extends Component {
 
                     </div>
                     <div className="col-10">
-                        {this.props.postData.user}
+                    {this.props.onProfilePage ? this.props.postData.user:
+                        <Link to={"/profile/"+this.props.postData.user} >{this.props.postData.user}</Link>
+                    }
+                    
+                        
                     </div>
                     </div>
                 <div className="row justify-content-center">

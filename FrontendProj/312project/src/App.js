@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { BrowserRouter as Router, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link, useLocation, Redirect } from "react-router-dom";
 
 import { Chat } from 'react-chat-popup';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import ReactDOM from 'react-dom'
-
+import DirectMessaging from "./components/directmessaging/DirectMessaging"
 import CreatePost from "./components/create-post.component";
 import CreateLogin from "./components/create-login.component";
 
@@ -14,10 +14,12 @@ import HomePage from "./components/HomePage.component";
 import ProfilePage from "./components/ProfilePage.component";
 import CreateAccount from "./components/create-account.component";
 import PostPage from "./components/postPage.component";
+import LogoutPage from "./components/logoutPage.component";
 import logo from "./logo.svg";
 import * as Constants from "./Constants.js"
 
 const socket = openSocket(Constants.config.url["API_URL"]+'/',{transports: ['websocket']});
+const secureSocket=openSocket(Constants.config.url["API_URL"]+'/chat',{transports: ['websocket']});
 
 class App extends Component {
 
@@ -26,15 +28,23 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data:""
+      data:"",
+      isLoggedIn:false,
+      newMessage: ""
     };
 
     // This binding is necessary to make `this` work in the callback
     this.sendSocketIO = this.sendSocketIO.bind(this);
     this.apples= this.apples.bind(this);
+    this.onAuthenticate=this.onAuthenticate.bind(this);
+    this.onChatUpdate=this.onChatUpdate.bind(this);
     this.SuccesfullLoginCallback= this.SuccesfullLoginCallback.bind(this);
+    this.SuccesfullLogoutCallback= this.SuccesfullLogoutCallback.bind(this);
+    this.getCookie=this.getCookie.bind(this);
     
     socket.on('update', this.apples)
+    secureSocket.on('authenticate', this.onAuthenticate);
+    secureSocket.on('chatUpdate', this.onChatUpdate);
   }
 
   socketUpdateHandler=(a)=>{
@@ -47,9 +57,22 @@ apples(msg){
     data:msg
   }))
 }
+onAuthenticate(msg){
+  console.log(msg);
+  if(msg==="login successful!"){
+    console.log("We successfully authenticated on the secure socket")
+  }
+
+}
+onChatUpdate(msg){
+  this.setState({
+    newMessage: msg
+  })
+}
 
 componentDidMount(){
 //this.sendSocketIO("waddup");
+this.checkIfLoggedIn();
 this.onRouteChanged();
 }
 
@@ -63,10 +86,104 @@ sendSocketIO(s) {
   }
   
 }
+getCookie(cname){
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
 
-SuccesfullLoginCallback(){
+checkIfLoggedIn(){
+  fetch(
+    Constants.config.url["API_URL"]+"/users/whoamI",
+      {
+        method: "get",
+        credentials: 'include'
+      }
+    )
+      .then((res) => res.json())
+      .then((result) => {
+        if(result.status==="Success"){
+          console.log(result);
+          this.setState(state => ({
+              loading:false,
+              isLoggedIn:true
+              
+              
+            }));
+            var myAuth=this.getCookie("authToken");
+            var p= {
+              "username": result.username,
+              "authToken": myAuth
+            }
+            //console.log(p);
+            secureSocket.emit('authenticate', p)
+            
+          
+        }
+        else{
+          
+        }
+          
+        
+      })
+      .catch((error) => {alert("Error getting Posts", error); alert(error)});
+}
+
+SuccesfullLoginCallback(username){
+
+            fetch(
+              Constants.config.url["API_URL"]+"/users/whoamI",
+                {
+                  method: "get",
+                  credentials: 'include'
+                }
+              )
+                .then((res) => res.json())
+                .then((result) => {
+                  if(result.status==="Success"){
+                    console.log(result);
+                    this.setState(state => ({
+                        loading:false,
+                        isLoggedIn:true,
+                        
+                        
+                      }));
+                      var myAuth=this.getCookie("authToken");
+                      var p= {
+                        "username": result.username,
+                        "authToken": myAuth
+                      }
+                      //console.log(p);
+                      secureSocket.emit('authenticate', p)
+                      
+                    
+                  }
+                  else{
+                    
+                  }
+                    
+                  
+                })
+                .catch((error) => {alert("Error getting checking if logged in", error); alert(error)});
+
+  
   this.setState({
-    successfullLogin:true
+    isLoggedIn:true
+  })
+}
+SuccesfullLogoutCallback(){
+  this.setState({
+    isLoggedIn:false
   })
 }
 
@@ -89,22 +206,27 @@ onRouteChanged() {
             <a class="navbar-brand" href="#" target="_blank">
               <img src={logo} width="30" height="30" alt="Our Logo" />
             </a>
-            <Link to="/" className="navbar-brand">MERN-Stack Social Media Site</Link>
+            <Link to="/" className="navbar-brand">CatRatMatSocket</Link>
             <div className="collpase navbar-collapse">
-              <ul className="navbar-nav mr-auto">
+              <ul className="navbar-nav ml-auto">
                 <li className="navbar-item">
                   <Link to="/" className="nav-link">Home</Link>
                 </li>
                 <li className="navbar-item">
-                  <Link to="/profile" className="nav-link">Profile</Link>
+                 {this.state.isLoggedIn ?
+                  <Link to={"/profile/"+sessionStorage.getItem("username")} className="nav-link">Profile</Link> : <div></div>}
                 </li>
                 <li className="navbar-item">
-                  <Link to="/create" className="nav-link">Create Post</Link>
+                {this.state.isLoggedIn ?
+                  <Link to="/create" className="nav-link">Create Post</Link> : <div></div>}
                 </li>
                 <li className="navbar-item">
-                  <Link to="/login" className="nav-link">Login</Link>
+                  {this.state.isLoggedIn ? <Link to="/logout" className="nav-link">Logout</Link> :
+                    <Link to="/login" className="nav-link">Login</Link>
+                  }
                 </li>
-                {this.state.successfullLogin ? <div className="navbar-item nav-link">You're Logged in</div> : <div></div>}
+
+                {this.state.isLoggedIn ? <div className="navbar-item nav-link navbar-right" style={{float:"right"}}>Welcome, {sessionStorage.getItem("username")}</div> : <div></div>}
               </ul>
             </div>
           </nav>
@@ -113,14 +235,22 @@ onRouteChanged() {
           <Route path="/" exact >
                 <HomePage socketHandler={this.socketUpdateHandler}  dataFromParent={this.state.data} ></HomePage>
             </Route> 
-          <Route path="/Profile" exact  >
-                <ProfilePage socketHandler={this.socketUpdateHandler} ></ProfilePage>
+          <Route path="/Profile/:profileUsername" exact  render={
+              (props) => <ProfilePage  {...props} socketHandler={this.socketUpdateHandler} dataFromParent={this.state.data} ></ProfilePage>
+          }
+                 >
             </Route> 
           <Route path="/create" >
-                <CreatePost socketHandler={this.socketUpdateHandler} ></CreatePost>
+                {this.state.isLoggedIn ? <CreatePost socketHandler={this.socketUpdateHandler} ></CreatePost> :
+                          <Redirect to={'/login'} />
+                        }
+                
             </Route> 
           <Route path="/login">
                 <CreateLogin socketHandler={this.socketUpdateHandler} SuccesfullLoginCallback={this.SuccesfullLoginCallback} ></CreateLogin>
+            </Route> 
+            <Route path="/logout">
+                <LogoutPage socketHandler={this.socketUpdateHandler} SuccesfullLogoutCallback={this.SuccesfullLogoutCallback} ></LogoutPage>
             </Route> 
           <Route path="/createAccount" >
                 <CreateAccount socketHandler={this.socketUpdateHandler} ></CreateAccount>
@@ -128,10 +258,12 @@ onRouteChanged() {
           <Route path="/post/:postId" render={(props) => <PostPage {...props} socketHandler={this.socketUpdateHandler}  dataFromParent={this.state.data}></PostPage>} >
                 
             </Route> 
+            {this.state.isLoggedIn ? <DirectMessaging onNewMessage={this.state.newMessage}/> :<div/>}
           
-          <Chat
+
+          {/* <Chat
             handleNewUserMessage={this.handleNewUserMessage}
-          />
+          /> */}
         </div>
       </Router>
     );
