@@ -199,8 +199,8 @@ app.use(bodyParser.json());
 app.use(cookieParser('434secretfortestingpurposes12'));
 app.use('/posts', upload.single('file'), postRoutes);
 app.use('/users', userRoutes);
-app.use('/images', dataRoutes);
-app.use('/chat', chatRoutes);
+app.use('/images',  dataRoutes);
+app.use('/chat',  chatRoutes);
 
 const saltRounds = 10;
 
