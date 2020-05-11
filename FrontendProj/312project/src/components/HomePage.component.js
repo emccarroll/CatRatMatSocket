@@ -8,7 +8,7 @@ export default class HomePage extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {isAllContent: false,
+        this.state = {isAllContent: true,
             GoToCommentPage:false,
             SelectedPost:"",
             posts: [],
@@ -104,6 +104,12 @@ export default class HomePage extends Component {
 
 
       getPosts(){
+
+        //clear before adding
+        this.setState(state => ({
+            posts: [],
+            postIds: []
+          }));
         
         fetch(
             Constants.config.url["API_URL"]+"/posts",
@@ -131,9 +137,42 @@ export default class HomePage extends Component {
 
     }
 
+    getPostsFromFollowingFeed(){
+        //clear before adding
+        this.setState(state => ({
+            posts: [],
+            postIds: []
+          }));
+        
+        fetch(
+            Constants.config.url["API_URL"]+"/users/fromFollowing",
+            {
+              credentials: 'include',
+              method: "get"
+            }
+          ).then((res) => res.json())
+          .then((result) => {
+              console.log(result);
+              var arr =Array.from(result, x=>x._id);
+              this.setState(state => ({
+                  posts: result,
+                  postIds:arr
+                }));
+                
+            });
+    }                      
+        
+
 
 
     FeedSwitch(){
+        if(this.state.isAllContent){
+            //if it's currently on all content, get the following feed content
+            this.getPostsFromFollowingFeed();
+        } else{
+            //else get all content
+            this.getPosts();
+        }
         this.setState(state => ({
             isAllContent: !state.isAllContent
           }));

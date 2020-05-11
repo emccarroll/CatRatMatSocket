@@ -364,15 +364,27 @@ userRoutes.route('/toggleFollow/:user').post(function (req, res) {
                     }
 
                     var isFollowing = account.following.get(req.params.user);
-
-                    if (isFollowing != true) {
-                        account.following.set(req.params.user, true);
-                        res.send({ status: "success", message: "followed" });
-                    } else {
-                        account.following.set(req.params.user, false);
-                        res.send({ status: "success", message: "unfollowed" });
+                    if (req.cookies['username'] == req.params.user) {
+                        if (isFollowing != false) {
+                            account.following.set(req.params.user, false);
+                            account.save();
+                        }
+                        res.send({ status: "error", message: "you cannot follow yourself" });
                     }
-                    account.save();
+                    else {
+                        if (isFollowing != true) {
+                            account.following.set(req.params.user, true);
+                            account.save();
+                            res.send({ status: "success", message: "followed" });
+                            
+                        } else {
+                            account.following.set(req.params.user, false);
+                            account.save();
+                            res.send({ status: "success", message: "unfollowed" });
+                            
+                        }
+                    }
+                    
 
 
                 } else {
@@ -683,11 +695,14 @@ userRoutes.route('/login').post(function (req, res) {
                         var token = buffer.toString('base64');
                         bcrypt.hash(token, saltRounds, function (err, hash) {
                             accounts[0].authSession = hash;
-                            accounts[0].save();
+                            accounts[0].save().then(
+                                res.cookie('authToken', token, { maxAge: 30 * 60000,httpOnly:false });
+                                res.cookie('username', accounts[0].user, { maxAge: 30 * 60000,httpOnly:false });
+                                res.send('login correct');
+                            );
+                            
                         });
-                        res.cookie('authToken', token, { maxAge: 30 * 60000 });
-                        res.cookie('username', accounts[0].user, { maxAge: 30 * 60000 });
-                        res.send('login correct');
+                        
                     });
 
                 } else {
