@@ -35,3 +35,6 @@
 .pointer:hover{
     cursor: pointer;
 }
+.maxH{
+    max-height: 300px;
+}
