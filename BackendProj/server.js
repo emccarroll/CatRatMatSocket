@@ -192,20 +192,15 @@ io.on('connection', (socket) => {
 
 });
 
-const corsOptions = {
-    origin: 'http://localhost:8000',
-    methods: "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
-    credentials: true,
-    allowedHeaders: "Content-Type, Authorization, X-Requested-With"
-}
 
-app.use(cors(corsOptions));
+
+app.use(cors());
 app.use(bodyParser.json());
 app.use(cookieParser('434secretfortestingpurposes12'));
-app.use('/posts', cors(corsOptions), upload.single('file'), postRoutes);
-app.use('/users', cors(corsOptions), userRoutes);
-app.use('/images', cors(corsOptions), dataRoutes);
-app.use('/chat', cors(corsOptions), chatRoutes);
+app.use('/posts', upload.single('file'), postRoutes);
+app.use('/users', userRoutes);
+app.use('/images', dataRoutes);
+app.use('/chat', chatRoutes);
 
 const saltRounds = 10;
 
@@ -294,6 +289,19 @@ chatRoutes.route('/message').post(function (req, res) {
                             }
                             var lastMessage = specificedUser.messages[specificedUser.messages.length - 1];
                             //TODO: Handle Websocket stuff here
+
+                            if (req.cookies['username'] != req.body.username) {
+                                SocketMap.find({ user: req.cookies['username'] }, function (err, socketUser) {
+                                    if (socketUser.length == 0) {
+                                        console.log('specified user is not logged in?');
+                                    } else {
+                                        var socketID = socketUser[0].socketID;
+                                        console.log(socketID);
+                                        io.of('/chat').to(socketID).emit('chatUpdate', lastMessage);
+                                    }
+                                });
+                            }
+
                             SocketMap.find({ user: req.body.username }, function (err, socketUser) {
                                 if (socketUser.length == 0) {
                                     console.log('specified user is not logged in?');
@@ -376,15 +384,15 @@ userRoutes.route('/toggleFollow/:user').post(function (req, res) {
                             account.following.set(req.params.user, true);
                             account.save();
                             res.send({ status: "success", message: "followed" });
-                            
+
                         } else {
                             account.following.set(req.params.user, false);
                             account.save();
                             res.send({ status: "success", message: "unfollowed" });
-                            
+
                         }
                     }
-                    
+
 
 
                 } else {
@@ -527,7 +535,7 @@ chatRoutes.route('/getFromUser/:user').get(function (req, res) {
 chatRoutes.route('/getMessages').get(function (req, res) {
     Account.find({ user: req.cookies['username'] }, function (err, data) {
         if (data.length == 0) {
-            res.send({Status:'error',message:'invalid authentication token!'});
+            res.send({ Status: 'error', message: 'invalid authentication token!' });
         } else {
             var account = data[0];
             bcrypt.compare(req.cookies['authToken'], account.authSession, function (err, result) {
@@ -535,7 +543,7 @@ chatRoutes.route('/getMessages').get(function (req, res) {
                     res.send({ Status: 'success', messages: data[0].messages });
 
                 } else {
-                    res.send({Status:'error',message:'invalid authentication token!'});
+                    res.send({ Status: 'error', message: 'invalid authentication token!' });
                 }
             });
         }
@@ -695,14 +703,14 @@ userRoutes.route('/login').post(function (req, res) {
                         var token = buffer.toString('base64');
                         bcrypt.hash(token, saltRounds, function (err, hash) {
                             accounts[0].authSession = hash;
-                            accounts[0].save().then( function(){
-                                res.cookie('authToken', token, { maxAge: 30 * 60000,httpOnly:false });
-                                res.cookie('username', accounts[0].user, { maxAge: 30 * 60000,httpOnly:false });
+                            accounts[0].save().then(function () {
+                                res.cookie('authToken', token, { maxAge: 30 * 60000, httpOnly: false });
+                                res.cookie('username', accounts[0].user, { maxAge: 30 * 60000, httpOnly: false });
                                 res.send('login correct');
                             });
-                            
+
                         });
-                        
+
                     });
 
                 } else {

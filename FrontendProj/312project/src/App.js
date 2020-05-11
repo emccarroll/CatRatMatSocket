@@ -206,25 +206,27 @@ onRouteChanged() {
             <a class="navbar-brand" href="#" target="_blank">
               <img src={logo} width="30" height="30" alt="Our Logo" />
             </a>
-            <Link to="/" className="navbar-brand">MERN-Stack Social Media Site</Link>
+            <Link to="/" className="navbar-brand">CatRatMatSocket</Link>
             <div className="collpase navbar-collapse">
-              <ul className="navbar-nav mr-auto">
+              <ul className="navbar-nav ml-auto">
                 <li className="navbar-item">
                   <Link to="/" className="nav-link">Home</Link>
                 </li>
                 <li className="navbar-item">
-                  <Link to={"/profile/"+sessionStorage.getItem("username")} className="nav-link">Profile</Link>
+                 {this.state.isLoggedIn ?
+                  <Link to={"/profile/"+sessionStorage.getItem("username")} className="nav-link">Profile</Link> : <div></div>}
                 </li>
                 <li className="navbar-item">
-                  <Link to="/create" className="nav-link">Create Post</Link>
+                {this.state.isLoggedIn ?
+                  <Link to="/create" className="nav-link">Create Post</Link> : <div></div>}
                 </li>
                 <li className="navbar-item">
                   {this.state.isLoggedIn ? <Link to="/logout" className="nav-link">Logout</Link> :
                     <Link to="/login" className="nav-link">Login</Link>
                   }
-                  
                 </li>
-                {this.state.isLoggedIn ? <div className="navbar-item nav-link">You're Logged in</div> : <div></div>}
+
+                {this.state.isLoggedIn ? <div className="navbar-item nav-link navbar-right" style={{float:"right"}}>Welcome, {sessionStorage.getItem("username")}</div> : <div></div>}
               </ul>
             </div>
           </nav>
