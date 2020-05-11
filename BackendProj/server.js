@@ -690,10 +690,12 @@ userRoutes.route('/login').post(function (req, res) {
                         var token = buffer.toString('base64');
                         bcrypt.hash(token, saltRounds, function (err, hash) {
                             accounts[0].authSession = hash;
-                            accounts[0].save();
-                            res.cookie('authToken', token, { maxAge: 30 * 60000,httpOnly:false });
-                            res.cookie('username', accounts[0].user, { maxAge: 30 * 60000,httpOnly:false });
-                            res.send('login correct');
+                            accounts[0].save().then(
+                                res.cookie('authToken', token, { maxAge: 30 * 60000,httpOnly:false });
+                                res.cookie('username', accounts[0].user, { maxAge: 30 * 60000,httpOnly:false });
+                                res.send('login correct');
+                            );
+                            
                         });
                         
                     });
