@@ -160,13 +160,7 @@ export default class HomePage extends Component {
                 }));
                 
             });
-    }
-                
-                  /* console.log("the array is");
-                  console.log(arr);
-                var x= JSON.stringify(arr); */
-                  
-              
+    }                      
         
 
 
